@@ -3,7 +3,10 @@ package br.com.ifba.poltrona.controller;
 import br.com.ifba.poltrona.entity.Poltrona;
 import br.com.ifba.poltrona.service.PoltronaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/poltronas")
@@ -12,14 +15,16 @@ public class PoltronaController {
 
     private final PoltronaService service;
 
-    @GetMapping(path = "/sala/{salaId}")
-    public java.util.List<Poltrona> listarPorSessao(@PathVariable Long sessaoId) {
-        return service.findBySessaoId(sessaoId);
+    @GetMapping(path = "/find-by-sessao-id/{sessaoId}")
+    public ResponseEntity<List<Poltrona>> findBySessaoId(@PathVariable Long sessaoId) {
+        List<Poltrona> poltronas = service.findBySessaoId(sessaoId);
+        return ResponseEntity.ok(poltronas);
     }
 
     @PostMapping(path = "/save")
-    public Poltrona salvar(@RequestBody Poltrona poltrona) {
-        return service.save(poltrona);
+    public ResponseEntity<Poltrona> save(@RequestBody Poltrona poltrona) {
+        Poltrona novaPoltrona = service.save(poltrona);
+        return ResponseEntity.ok(novaPoltrona);
     }
 }
 

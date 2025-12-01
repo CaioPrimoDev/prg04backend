@@ -47,18 +47,19 @@ public class SessaoController {
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<Sessao> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Sessao> findById(@PathVariable Long id) {
         return service.findById(id).map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping(path = "/ativas")
-    public ResponseEntity<List<Sessao>> listarAtivas() {
+    public ResponseEntity<List<Sessao>> findByAtivoTrue() {
+
         return ResponseEntity.ok(service.findByAtivoTrue());
     }
 
     @GetMapping(path = "/desativadas")
-    public ResponseEntity<List<Sessao>> listarDesativadas() {
+    public ResponseEntity<List<Sessao>> findByAtivoFalse() {
         return ResponseEntity.ok(service.findByAtivoFalse());
     }
 
