@@ -6,20 +6,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/poltronas")
+@RequestMapping("/poltronas")
 @RequiredArgsConstructor
 public class PoltronaController {
 
     private final PoltronaService service;
 
-    @GetMapping("/sala/{salaId}")
-    public java.util.List<Poltrona> listarPorSala(@PathVariable Long salaId) {
-        return service.listarPorSala(salaId);
+    @GetMapping(path = "/sala/{salaId}")
+    public java.util.List<Poltrona> listarPorSessao(@PathVariable Long sessaoId) {
+        return service.findBySessaoId(sessaoId);
     }
 
-    @PostMapping
+    @PostMapping(path = "/save")
     public Poltrona salvar(@RequestBody Poltrona poltrona) {
-        return service.salvar(poltrona);
+        return service.save(poltrona);
     }
 }
 

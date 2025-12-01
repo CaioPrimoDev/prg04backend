@@ -5,29 +5,36 @@ import br.com.ifba.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
-public class UsuarioService {
+public class UsuarioService implements UsuarioIService {
 
     private final UsuarioRepository repository;
 
-    public Usuario salvar(Usuario usuario) {
+    @Override
+    public Usuario save(Usuario usuario) {
         return repository.save(usuario);
     }
 
-    public Usuario buscarPorEmail(String email) {
+    @Override
+    public Usuario findByEmail(String email) {
         return repository.findByEmail(email).orElse(null);
     }
 
-    public Usuario buscarPorCpf(String cpf) {
+    @Override
+    public Usuario findByCpf(String cpf) {
         return repository.findByCpf(cpf).orElse(null);
     }
 
-    public void deletarPorId(Long id) {
+    @Override
+    public void deleteById(Long id) {
         repository.deleteById(id);
     }
 
-    public java.util.List<Usuario> listarTodos() {
+    @Override
+    public List<Usuario> findAll() {
         return repository.findAll();
     }
 }

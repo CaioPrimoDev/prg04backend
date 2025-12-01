@@ -1,7 +1,7 @@
 package br.com.ifba.usuario.controller;
 
 import br.com.ifba.usuario.entity.Usuario;
-import br.com.ifba.usuario.service.UsuarioService;
+import br.com.ifba.usuario.service.UsuarioIService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,36 +9,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/usuarios")
 @RequiredArgsConstructor
 public class UsuarioController {
 
-    private final UsuarioService usuarioService;
+    private final UsuarioIService usuarioService;
 
-    @PostMapping
+    @PostMapping(path = "/salvar")
     public Usuario salvar(@RequestBody Usuario usuario) {
-        return usuarioService.salvar(usuario);
+        return usuarioService.save(usuario);
     }
 
     @GetMapping("/email/{email}")
     public Usuario buscarPorEmail(@PathVariable String email) {
-        return usuarioService.buscarPorEmail(email);
+        return usuarioService.findByEmail(email);
     }
 
     @GetMapping("/cpf/{cpf}")
     public Usuario buscarPorCpf(@PathVariable String cpf) {
-        return usuarioService.buscarPorCpf(cpf);
+        return usuarioService.findByCpf(cpf);
     }
 
-    @GetMapping
+    @GetMapping(path = "/findall")
     public List<Usuario> listarTodos() {
-        return usuarioService.listarTodos();
+        return usuarioService.findAll();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        usuarioService.deletarPorId(id);
+        usuarioService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }
+
+
 

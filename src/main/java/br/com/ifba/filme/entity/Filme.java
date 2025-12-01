@@ -23,7 +23,7 @@ public class Filme extends PersistenceEntity {
 
     private BigDecimal preco;
 
-    private Boolean meiaEntrada = false;
+    private Boolean meiaEntrada;
 
     /**
      * URL pública/assinada para a imagem (recomendado: Supabase Storage)

@@ -5,17 +5,21 @@ import br.com.ifba.sala.repository.SalaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
-public class SalaService {
+public class SalaService implements SalaIService {
 
     private final SalaRepository repository;
 
-    public Sala salvar(Sala sala) {
+    @Override
+    public Sala save(Sala sala) {
         return repository.save(sala);
     }
 
-    public java.util.List<Sala> listar() {
+    @Override
+    public List<Sala> findAll() {
         return repository.findAll();
     }
 }

@@ -16,22 +16,22 @@ public class ReservaPoltronaController {
     private final ReservaPoltronaService service;
 
     // "Criar" nova reservaPoltrona
-    @PostMapping
+    @PostMapping(path = "/save")
     public ResponseEntity<ReservaPoltrona> criar(@RequestBody ReservaPoltrona rp) {
-        ReservaPoltrona saved = service.salvar(rp);
+        ReservaPoltrona saved = service.save(rp);
         return ResponseEntity.ok(saved);
     }
 
     // Listar por reserva (útil para coletar todas as poltronas daquela reserva)
-    @GetMapping("/reserva/{reservaId}")
+    @GetMapping(path = "/reserva/{reservaId}")
     public ResponseEntity<List<ReservaPoltrona>> listarPorReserva(@PathVariable Long reservaId) {
-        return ResponseEntity.ok(service.listarPorReserva(reservaId));
+        return ResponseEntity.ok(service.findByReservaId(reservaId));
     }
 
     // Deletar (cancelar) reservaPoltrona
-    @DeleteMapping("/{id}")
+    @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        service.deletar(id);
+        service.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

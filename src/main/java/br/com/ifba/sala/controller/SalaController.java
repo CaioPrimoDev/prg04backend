@@ -6,20 +6,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/salas")
+@RequestMapping("/salas")
 @RequiredArgsConstructor
 public class SalaController {
 
     private final SalaService service;
 
-    @PostMapping
+    @PostMapping(path = "/save")
     public Sala salvar(@RequestBody Sala sala) {
-        return service.salvar(sala);
+        return service.save(sala);
     }
 
-    @GetMapping
+    @GetMapping(path = "/findall")
     public java.util.List<Sala> listar() {
-        return service.listar();
+        return service.findAll();
     }
 }
 

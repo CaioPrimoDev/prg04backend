@@ -13,10 +13,8 @@ public class ReservaController {
 
     private final ReservaService service;
 
-    @PostMapping
-    public Reserva criarReserva(
-            @RequestBody ReservaRequest request
-    ) {
+    @PostMapping(path = "/save")
+    public Reserva criarReserva(@RequestBody ReservaRequest request) {
         return service.criarReserva(
                 request.getReserva(),
                 request.getPoltronas()

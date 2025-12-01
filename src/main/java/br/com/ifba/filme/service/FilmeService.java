@@ -2,42 +2,47 @@ package br.com.ifba.filme.service;
 
 import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.filme.repository.FilmeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class FilmeService {
+public class FilmeService implements FilmeIService {
 
     private final FilmeRepository repository;
 
-    public Filme salvar(Filme filme) {
+    @Override
+    public Filme save(Filme filme) {
         return repository.save(filme);
     }
 
-    public List<Filme> listarAtivos() {
+    @Override
+    public List<Filme> findByAtivoTrue() {
         return repository.findByAtivoTrue();
     }
 
-    public List<Filme> listarInativos() {
+    @Override
+    public List<Filme> findByAtivoFalse() {
         return repository.findByAtivoFalse();
     }
 
-    public List<Filme> listarTodos() {
+    @Override
+    public List<Filme> findAll() {
         return repository.findAll();
     }
 
-    public Optional<Filme> buscarPorId(Long id) {
+    @Override
+    public Optional<Filme> findById(Long id) {
         return repository.findById(id);
     }
 
     // delete lógico (desativar)
     @Transactional
-    public void desativar(Long id) {
+    public void disable(Long id) {
         repository.findById(id).ifPresent(f -> {
             f.setAtivo(false);
             repository.save(f);
@@ -46,9 +51,20 @@ public class FilmeService {
 
     // delete hard (apaga TUDO)
     @Transactional
-    public void apagar(Long id) {
+    public void deleteById(Long id) {
         repository.deleteById(id);
     }
+
+    @Transactional
+    public Filme atualizarImagem(Long id, String novaUrl) {
+        return repository.findById(id)
+                .map(filme -> {
+                    filme.setImagemUrl(novaUrl);
+                    return repository.save(filme);
+                })
+                .orElseThrow(() -> new EntityNotFoundException("Filme não encontrado com id: " + id));
+    }
+
 }
 
 

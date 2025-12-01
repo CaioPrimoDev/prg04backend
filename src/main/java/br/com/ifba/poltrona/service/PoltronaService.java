@@ -5,18 +5,22 @@ import br.com.ifba.poltrona.repository.PoltronaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
-public class PoltronaService {
+public class PoltronaService implements  PoltronaIService {
 
     private final PoltronaRepository repository;
 
-    public Poltrona salvar(Poltrona poltrona) {
+    @Override
+    public Poltrona save(Poltrona poltrona) {
         return repository.save(poltrona);
     }
 
-    public java.util.List<Poltrona> listarPorSala(Long salaId) {
-        return repository.findBySalaId(salaId);
+    @Override
+    public List<Poltrona> findBySessaoId(Long sessaoId) {
+        return repository.findBySessaoId(sessaoId);
     }
 }
 

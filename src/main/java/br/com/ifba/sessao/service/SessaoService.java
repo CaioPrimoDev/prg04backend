@@ -12,30 +12,51 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class SessaoService {
+public class SessaoService implements SessaoIService {
 
     private final SessaoRepository repository;
 
-    public Sessao salvar(Sessao s) {
+    @Override
+    public Sessao save(Sessao s) {
         return repository.save(s);
     }
 
-    public List<Sessao> listarPorData(LocalDate data) {
+    @Override
+    public List<Sessao> findByData(LocalDate data) {
         return repository.findByData(data);
     }
 
-    public List<Sessao> listarPorFilmeEData(Long filmeId, LocalDate data) {
+    @Override
+    public List<Sessao> findByFilmeIdAndData(Long filmeId, LocalDate data) {
         return repository.findByFilmeIdAndData(filmeId, data);
     }
 
-    public Optional<Sessao> buscarPorId(Long id) {
+    @Override
+    public List<Sessao> findByFilmeId(Long filmeId) {
+        return repository.findByFilmeId(filmeId);
+    }
+
+    @Override
+    public List<Sessao> findBySalaId(Long salaId) {
+        return repository.findBySalaId(salaId);
+    }
+
+    @Override
+    public Optional<Sessao> findById(Long id) {
         return repository.findById(id);
     }
 
-    public List<Sessao> listarAtivas() {
+    @Override
+    public List<Sessao> findByAtivoTrue() {
         return repository.findByAtivoTrue();
     }
 
+    @Override
+    public List<Sessao> findByAtivoFalse() {
+        return repository.findByAtivoFalse();
+    }
+
+    @Override
     @Transactional
     public void desativar(Long id) {
         repository.findById(id).ifPresent(s -> {
@@ -45,6 +66,7 @@ public class SessaoService {
     }
 
     // hard delete
+    @Override
     @Transactional
     public void apagar(Long id) {
         repository.deleteById(id);

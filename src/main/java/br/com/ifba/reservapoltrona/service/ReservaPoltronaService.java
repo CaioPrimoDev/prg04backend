@@ -14,20 +14,23 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReservaPoltronaService {
+public class ReservaPoltronaService implements ReservaPoltronaIService {
 
     private final ReservaPoltronaRepository repository;
 
-    public ReservaPoltrona salvar(ReservaPoltrona rp) {
+    @Override
+    public ReservaPoltrona save(ReservaPoltrona rp) {
         rp.setCriadoEm(LocalDateTime.now());
         return repository.save(rp);
     }
 
-    public List<ReservaPoltrona> listarPorReserva(Long reservaId) {
+    @Override
+    public List<ReservaPoltrona> findByReservaId(Long reservaId) {
         return repository.findByReservaId(reservaId);
     }
 
-    public void deletar(Long id) {
+    @Override
+    public void deleteById(Long id) {
         repository.deleteById(id);
     }
 }

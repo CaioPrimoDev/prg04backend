@@ -13,11 +13,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReservaService {
+public class ReservaService implements ReservaIService {
 
     private final ReservaRepository reservaRepository;
     private final ReservaPoltronaRepository reservaPoltronaRepository;
 
+    @Override
     @Transactional
     public Reserva criarReserva(Reserva reserva, List<Poltrona> poltronas) {
 
