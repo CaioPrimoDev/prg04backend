@@ -1,14 +1,20 @@
 package br.com.ifba.sessao.controller;
 
+import br.com.ifba.infrastructure.mapper.DTOMapper;
+import br.com.ifba.sessao.dto.SessaoCadastroDTO;
+import br.com.ifba.sessao.dto.SessaoResponseDTO;
 import br.com.ifba.sessao.entity.Sessao;
 import br.com.ifba.sessao.service.SessaoIService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/sessoes")
@@ -16,61 +22,112 @@ import java.util.List;
 public class SessaoController {
 
     private final SessaoIService service;
+    private final DTOMapper mapper;
 
-    @PostMapping(path = "/save")
-    public ResponseEntity<Sessao> criar(@RequestBody Sessao sessao) {
-        Sessao saved = service.save(sessao);
-        return ResponseEntity.ok(saved);
+    @PostMapping(path = "/save",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SessaoResponseDTO> criar(@RequestBody SessaoCadastroDTO dto) { // ✅ Recebe DTO
+
+        // OBS: Assumimos que service.save() foi alterado para: Sessao save(SessaoCadastroDTO dto)
+        Sessao savedEntity = service.save(dto); // ⬅️ O Service lida com a conversão DTO -> Entidade
+
+        // Converte a Entidade salva para o DTO de Saída
+        SessaoResponseDTO responseDto = mapper.map(savedEntity, SessaoResponseDTO.class);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED) // Status 201 CREATED é melhor para POST
+                .body(responseDto);
     }
 
-    @GetMapping(path = "/data/{data}")
-    public ResponseEntity<List<Sessao>> listarPorData(
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
-        return ResponseEntity.ok(service.findByData(data));
+    @GetMapping(path = "/data/{data}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SessaoResponseDTO>> listarPorData(
+            @PathVariable("data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
+
+        List<Sessao> sessoes = service.findByData(data);
+
+        List<SessaoResponseDTO> dtos = sessoes.stream()
+                .map(sessao -> mapper.map(sessao, SessaoResponseDTO.class))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
     }
 
-    @GetMapping(path = "/filme/{filmeId}/data/{data}")
-    public ResponseEntity<List<Sessao>> listarPorFilmeEData(
-            @PathVariable Long filmeId,
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
-        return ResponseEntity.ok(service.findByFilmeIdAndData(filmeId, data));
+    @GetMapping(path = "/filme/{filmeId}/data/{data}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SessaoResponseDTO>> listarPorFilmeEData(
+            @PathVariable("filmeId") Long filmeId,
+            @PathVariable("data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
+
+        List<Sessao> sessoes = service.findByFilmeIdAndData(filmeId, data);
+
+        return ResponseEntity.ok(sessoes.stream()
+                .map(sessao -> mapper.map(sessao, SessaoResponseDTO.class))
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping(path = "/filme/{filmeId}")
-    public ResponseEntity<List<Sessao>> listarPorFilme(@PathVariable Long filmeId) {
-        return ResponseEntity.ok(service.findByFilmeId(filmeId));
+    @GetMapping(path = "/filme/{filmeId}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SessaoResponseDTO>> listarPorFilme(@PathVariable("filmeId") Long filmeId) {
+
+        List<Sessao> sessoes = service.findByFilmeId(filmeId);
+
+        return ResponseEntity.ok(sessoes.stream()
+                .map(sessao -> mapper.map(sessao, SessaoResponseDTO.class))
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping(path = "/sala/{salaId}")
-    public ResponseEntity<List<Sessao>> listarPorSala(@PathVariable Long salaId) {
-        return ResponseEntity.ok(service.findBySalaId(salaId));
+    @GetMapping(path = "/sala/{salaId}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SessaoResponseDTO>> listarPorSala(@PathVariable("salaId") Long salaId) {
+
+        List<Sessao> sessoes = service.findBySalaId(salaId);
+
+        return ResponseEntity.ok(sessoes.stream()
+                .map(sessao -> mapper.map(sessao, SessaoResponseDTO.class))
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<Sessao> findById(@PathVariable Long id) {
-        return service.findById(id).map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SessaoResponseDTO> buscarPorId(@PathVariable("id") Long id) { // ✅ Retorna DTO
+
+        return service.findById(id)
+                .map(sessao -> mapper.map(sessao, SessaoResponseDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build()); // caso seja vazio
     }
 
-    @GetMapping(path = "/ativas")
-    public ResponseEntity<List<Sessao>> findByAtivoTrue() {
+    @GetMapping(path = "/ativas",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SessaoResponseDTO>> findByAtivoTrue() {
 
-        return ResponseEntity.ok(service.findByAtivoTrue());
+        List<Sessao> sessoes = service.findByAtivoTrue();
+
+        return ResponseEntity.ok(sessoes.stream()
+                .map(sessao -> mapper.map(sessao, SessaoResponseDTO.class))
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping(path = "/desativadas")
-    public ResponseEntity<List<Sessao>> findByAtivoFalse() {
-        return ResponseEntity.ok(service.findByAtivoFalse());
+    @GetMapping(path = "/desativadas",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SessaoResponseDTO>> findByAtivoFalse() {
+
+        List<Sessao> sessoes = service.findByAtivoFalse();
+
+        return ResponseEntity.ok(sessoes.stream()
+                .map(sessao -> mapper.map(sessao, SessaoResponseDTO.class))
+                .collect(Collectors.toList()));
     }
 
     @PatchMapping("/{id}/desativar")
-    public ResponseEntity<Void> desativar(@PathVariable Long id) {
+    public ResponseEntity<Void> desativar(@PathVariable("id") Long id) {
         service.desativar(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping(path = "/{id}/hard")
-    public ResponseEntity<Void> apagar(@PathVariable Long id) {
+    public ResponseEntity<Void> apagar(@PathVariable("id") Long id) {
         service.apagar(id);
         return ResponseEntity.noContent().build();
     }

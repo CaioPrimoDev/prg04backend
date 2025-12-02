@@ -1,4 +1,4 @@
-package br.com.ifba.dto;
+package br.com.ifba.filme.image_dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,5 +7,4 @@ import lombok.Setter;
 @Getter
 public class ImagemUrlRequest {
     private String imagemUrl;
-
 }

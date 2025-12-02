@@ -1,5 +1,6 @@
 package br.com.ifba.filme.service;
 
+import br.com.ifba.filme.dto.FilmeCadastroDTO;
 import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.filme.repository.FilmeRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,7 +17,15 @@ public class FilmeService implements FilmeIService {
     private final FilmeRepository repository;
 
     @Override
-    public Filme save(Filme filme) {
+    public Filme save(FilmeCadastroDTO dto) {
+        Filme filme = Filme.builder()
+                .titulo(dto.getTitulo())
+                .descricao(dto.getDescricao())
+                .imagemUrl(dto.getImagemUrl())
+                .trailerYoutube(dto.getTrailerYoutube())
+                .preco(dto.getPreco())
+                .meiaEntrada(dto.getMeiaEntrada())
+                .build();
         return repository.save(filme);
     }
 

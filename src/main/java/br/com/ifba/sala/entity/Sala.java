@@ -14,8 +14,5 @@ import lombok.*;
 public class Sala extends PersistenceEntity {
 
     private String nome;
-
-    @Column(nullable = false)
-    private String descricao;
 }
 

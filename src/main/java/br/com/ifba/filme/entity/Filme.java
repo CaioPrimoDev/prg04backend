@@ -26,7 +26,7 @@ public class Filme extends PersistenceEntity {
     private Boolean meiaEntrada;
 
     /**
-     * URL pública/assinada para a imagem (recomendado: Supabase Storage)
+     * URL pública/assinada para a imagem (Supabase Storage)
     **/
     @Column(name = "imagem_url", columnDefinition = "TEXT")
     private String imagemUrl;
