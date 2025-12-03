@@ -1,6 +1,6 @@
 package br.com.ifba.reserva.controller;
 
-import br.com.ifba.infrastructure.mapper.DTOMapper;
+import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
 import br.com.ifba.reserva.dto.ReservaCadastroDTO;
 import br.com.ifba.reserva.dto.ReservaResponseDTO;
 import br.com.ifba.reserva.entity.Reserva;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class ReservaController {
 
     private final ReservaService service;
-    private final DTOMapper mapper;
+    private final ObjectMapperUtill mapper;
 
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,

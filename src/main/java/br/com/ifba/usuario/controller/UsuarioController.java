@@ -1,6 +1,6 @@
 package br.com.ifba.usuario.controller;
 
-import br.com.ifba.infrastructure.mapper.DTOMapper;
+import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
 import br.com.ifba.usuario.dto.UsuarioCadastroDTO;
 import br.com.ifba.usuario.dto.UsuarioListagemDTO;
 import br.com.ifba.usuario.dto.UsuarioResponseDTO;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class UsuarioController {
 
     private final UsuarioIService usuarioService;
-    private final DTOMapper mapper;
+    private final ObjectMapperUtill mapper;
 
     // POST - Criar  usuário
     @PostMapping(path = "/save",

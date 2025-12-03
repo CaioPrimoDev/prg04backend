@@ -1,5 +1,6 @@
 package br.com.ifba.sala.service;
 
+import br.com.ifba.infrastructure.exception.BusinessException;
 import br.com.ifba.sala.dto.SalaCadastroDTO;
 import br.com.ifba.sala.entity.Sala;
 import br.com.ifba.sala.repository.SalaRepository;
@@ -16,6 +17,7 @@ public class SalaService implements SalaIService {
 
     @Override
     public Sala save(SalaCadastroDTO dto) {
+        // TODO: Adicionar validação de unicidade do nome da Sala aqui, se necessário.
         Sala sala = new Sala();
         sala.setNome(dto.getNome());
         return repository.save(sala);
@@ -24,6 +26,12 @@ public class SalaService implements SalaIService {
     @Override
     public List<Sala> findAll() {
         return repository.findAll();
+    }
+
+    @Override
+    public Sala findById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new BusinessException("Sala com o ID " + id + " não encontrada."));
     }
 }
 

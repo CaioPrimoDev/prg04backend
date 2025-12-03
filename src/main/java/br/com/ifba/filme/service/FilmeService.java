@@ -3,7 +3,7 @@ package br.com.ifba.filme.service;
 import br.com.ifba.filme.dto.FilmeCadastroDTO;
 import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.filme.repository.FilmeRepository;
-import jakarta.persistence.EntityNotFoundException;
+import br.com.ifba.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +18,7 @@ public class FilmeService implements FilmeIService {
 
     @Override
     public Filme save(FilmeCadastroDTO dto) {
+        // Mapeia DTO para a Entidade Filme
         Filme filme = Filme.builder()
                 .titulo(dto.getTitulo())
                 .descricao(dto.getDescricao())
@@ -25,6 +26,7 @@ public class FilmeService implements FilmeIService {
                 .trailerYoutube(dto.getTrailerYoutube())
                 .preco(dto.getPreco())
                 .meiaEntrada(dto.getMeiaEntrada())
+                .ativo(true) // Ativo por padrão
                 .build();
         return repository.save(filme);
     }
@@ -52,26 +54,36 @@ public class FilmeService implements FilmeIService {
     // delete lógico (desativar)
     @Transactional
     public void disable(Long id) {
-        repository.findById(id).ifPresent(f -> {
-            f.setAtivo(false);
-            repository.save(f);
-        });
+        Filme filme = repository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        "Filme com o ID " + id + " não encontrado para desativação."
+                ));
+
+        filme.setAtivo(false);
+        repository.save(filme);
     }
 
     // delete hard (apaga TUDO)
     @Transactional
     public void deleteById(Long id) {
+        // Valida se o filme existe antes de tentar deletar
+        if (!repository.existsById(id)) {
+            throw new BusinessException(
+                    "Não é possível apagar, Filme com o ID " + id + " não encontrado."
+            );
+        }
         repository.deleteById(id);
     }
 
     @Transactional
     public Filme atualizarImagem(Long id, String novaUrl) {
-        return repository.findById(id)
-                .map(filme -> {
-                    filme.setImagemUrl(novaUrl);
-                    return repository.save(filme);
-                })
-                .orElseThrow(() -> new EntityNotFoundException("Filme não encontrado com id: " + id));
+        Filme filme = repository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        "Filme com o ID " + id + " não encontrado para atualização de imagem."
+                ));
+
+        filme.setImagemUrl(novaUrl);
+        return repository.save(filme);
     }
 
 }

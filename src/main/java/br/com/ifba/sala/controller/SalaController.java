@@ -1,6 +1,6 @@
 package br.com.ifba.sala.controller;
 
-import br.com.ifba.infrastructure.mapper.DTOMapper;
+import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
 import br.com.ifba.sala.dto.SalaCadastroDTO;
 import br.com.ifba.sala.dto.SalaResponseDTO;
 import br.com.ifba.sala.entity.Sala;
@@ -20,17 +20,15 @@ import java.util.stream.Collectors;
 public class SalaController {
 
     private final SalaIService service;
-    private final DTOMapper mapper;
+    private final ObjectMapperUtill mapper;
 
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SalaResponseDTO> salvar(@RequestBody SalaCadastroDTO dto) { // ✅ Recebe DTO
+    public ResponseEntity<SalaResponseDTO> salvar(@RequestBody SalaCadastroDTO dto) {
 
-        // 1. O Service deve ser alterado para: Sala save(SalaCadastroDTO dto)
         Sala criado = service.save(dto);
 
-        // 2. Mapeia a Entidade criada para o DTO de Saída
         SalaResponseDTO responseDto = mapper.map(criado, SalaResponseDTO.class);
 
         return ResponseEntity
@@ -40,16 +38,27 @@ public class SalaController {
 
     @GetMapping(path = "/findall",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<SalaResponseDTO>> listar() { // ✅ Retorna Lista de DTOs
+    public ResponseEntity<List<SalaResponseDTO>> listar() {
 
         List<Sala> salas = service.findAll();
 
-        // Transforma a lista de Entidades em lista de DTOs usando Streams
         List<SalaResponseDTO> dtos = salas.stream()
                 .map(sala -> mapper.map(sala, SalaResponseDTO.class))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(dtos);
     }
+
+    @GetMapping(path = "/{id}",
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SalaResponseDTO> findById(@PathVariable("id") Long id) {
+
+        Sala sala = service.findById(id);
+
+        SalaResponseDTO dto = mapper.map(sala, SalaResponseDTO.class);
+
+        return ResponseEntity.ok(dto);
+    }
+
 }
 

@@ -1,5 +1,6 @@
 package br.com.ifba.reserva.service;
 
+import br.com.ifba.infrastructure.exception.BusinessException;
 import br.com.ifba.poltrona.entity.Poltrona;
 import br.com.ifba.poltrona.repository.PoltronaRepository;
 import br.com.ifba.reserva.dto.ReservaCadastroDTO;
@@ -33,33 +34,55 @@ public class ReservaService implements ReservaIService {
     @Transactional
     public Reserva criarReserva(ReservaCadastroDTO dto) {
 
-        Usuario usuario = usuarioRepository.getReferenceById(dto.getUsuarioId());
-        Sessao sessao = sessaoRepository.getReferenceById(dto.getSessaoId());
+        // 1. Validação de Existência (substituindo getReferenceById)
+        // Usamos findById para garantir que a entidade existe antes de prosseguir.
+        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new BusinessException(
+                        "Usuário com o ID " + dto.getUsuarioId() + " não encontrado."
+                ));
 
+        Sessao sessao = sessaoRepository.findById(dto.getSessaoId())
+                .orElseThrow(() -> new BusinessException(
+                        "Sessão com o ID " + dto.getSessaoId() + " não encontrada."
+                ));
+
+        // Busca as Poltronas
         List<Poltrona> poltronas = poltronaRepository.findAllById(dto.getPoltronasIds());
 
-        // TODO: Adicionar lógica de validação de poltronas (se estão bloqueadas/disponíveis)
+        // 2. Validação de Poltronas (Regra de Negócio)
+        // Garante que TODOS os IDs de poltronas enviados foram encontrados.
+        if (poltronas.size() != dto.getPoltronasIds().size()) {
+            // Lógica mais complexa poderia identificar qual ID falhou, mas essa é uma verificação mínima.
+            throw new BusinessException(
+                    "Um ou mais IDs de poltronas não são válidos ou não foram encontrados."
+            );
+        }
 
-        // 2. Cria a Entidade Reserva com a lógica de negócio
+        // Valida se as poltronas já estão bloqueadas
+        boolean anyBlocked = poltronas.stream().anyMatch(Poltrona::getBloqueada);
+        if (anyBlocked) {
+            throw new BusinessException(
+                    "Uma ou mais poltronas selecionadas já estão bloqueadas para esta sessão."
+            );
+        }
+
+        // 3. Cria a Entidade Reserva
         Reserva novaReserva = Reserva.builder()
                 .usuario(usuario)
                 .sessao(sessao)
-                .status("TEMP") // Status inicial (pode ser CONFIRMADA se o pagamento for instantâneo)
-                .token(UUID.randomUUID().toString()) // Gera um token de rastreamento
-                .expiracao(LocalDateTime.now().plusMinutes(15)) // Define um tempo de expiração
-                // TODO: Adicionar lógica real de cálculo (baseada no preço da Sessao e meia/inteira)
+                .status("TEMP")
+                .token(UUID.randomUUID().toString())
+                .expiracao(LocalDateTime.now().plusMinutes(15))
                 .total(BigDecimal.ZERO)
                 .build();
 
-        // 3. Salva a Reserva principal
         Reserva savedReserva = reservaRepository.save(novaReserva);
 
+        // 4. Cria as ReservaPoltrona e Bloqueia os Assentos
         for (Poltrona p : poltronas) {
-            // Lógica do Bloqueio:
-            p.setBloqueada(true); // Trava a poltrona
-            poltronaRepository.save(p); // Persiste o novo status de bloqueio
+            p.setBloqueada(true);
+            poltronaRepository.save(p);
 
-            // Lógica da Ligação (ReservaPoltrona):
             ReservaPoltrona rp = ReservaPoltrona.builder()
                     .reserva(savedReserva)
                     .poltrona(p)

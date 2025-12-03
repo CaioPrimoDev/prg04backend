@@ -5,7 +5,7 @@ import br.com.ifba.filme.dto.FilmeResponseDTO;
 import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.filme.image_dto.ImagemUrlRequest;
 import br.com.ifba.filme.service.FilmeService;
-import br.com.ifba.infrastructure.mapper.DTOMapper;
+import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class FilmeController {
 
     private final FilmeService service;
-    private final DTOMapper mapper; // Assumindo injeção
+    private final ObjectMapperUtill mapper; // Assumindo injeção
 
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,

@@ -9,4 +9,6 @@ public interface SalaIService {
 
     Sala save(SalaCadastroDTO dto);
     List<Sala> findAll();
+
+    Sala findById(Long id);
 }

@@ -1,9 +1,11 @@
 package br.com.ifba.reservapoltrona.service;
 
+import br.com.ifba.infrastructure.exception.BusinessException;
 import br.com.ifba.reservapoltrona.entity.ReservaPoltrona;
 import br.com.ifba.reservapoltrona.repository.ReservaPoltronaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +32,13 @@ public class ReservaPoltronaService implements ReservaPoltronaIService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
+        if (!repository.existsById(id)) {
+            throw new BusinessException(
+                    "Não é possível cancelar, ReservaPoltrona com o ID " + id + " não encontrada."
+            );
+        }
         repository.deleteById(id);
     }
 }

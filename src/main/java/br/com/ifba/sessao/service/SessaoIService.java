@@ -17,6 +17,6 @@ public interface SessaoIService {
     Optional<Sessao> findById(Long id);
     List<Sessao> findByAtivoTrue();
     List<Sessao> findByAtivoFalse();
-    void desativar(Long id);
-    void apagar(Long id);
+    void disable(Long id);
+    void deleteById(Long id);
 }

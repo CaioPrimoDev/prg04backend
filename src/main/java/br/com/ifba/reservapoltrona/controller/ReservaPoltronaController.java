@@ -1,6 +1,6 @@
 package br.com.ifba.reservapoltrona.controller;
 
-import br.com.ifba.infrastructure.mapper.DTOMapper;
+import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
 import br.com.ifba.reservapoltrona.dto.ReservaPoltronaResponseDTO;
 import br.com.ifba.reservapoltrona.entity.ReservaPoltrona;
 import br.com.ifba.reservapoltrona.service.ReservaPoltronaService;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class ReservaPoltronaController {
 
     private final ReservaPoltronaService service;
-    private final DTOMapper mapper; // Assumindo injeção
+    private final ObjectMapperUtill mapper; // Assumindo injeção
 
     // Listar por reserva (útil para coletar todas as poltronas daquela reserva)
     @GetMapping(path = "/reserva/{reservaId}",

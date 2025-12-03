@@ -1,6 +1,6 @@
 package br.com.ifba.poltrona.controller;
 
-import br.com.ifba.infrastructure.mapper.DTOMapper;
+import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
 import br.com.ifba.poltrona.dto.PoltronaCadastroDTO;
 import br.com.ifba.poltrona.dto.PoltronaResponseDTO;
 import br.com.ifba.poltrona.entity.Poltrona;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class PoltronaController {
 
     private final PoltronaService service;
-    private final DTOMapper mapper;
+    private final ObjectMapperUtill mapper;
 
     @GetMapping(path = "/find-by-sessao-id/{sessaoId}",
             produces = MediaType.APPLICATION_JSON_VALUE)

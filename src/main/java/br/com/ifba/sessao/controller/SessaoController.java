@@ -1,6 +1,6 @@
 package br.com.ifba.sessao.controller;
 
-import br.com.ifba.infrastructure.mapper.DTOMapper;
+import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
 import br.com.ifba.sessao.dto.SessaoCadastroDTO;
 import br.com.ifba.sessao.dto.SessaoResponseDTO;
 import br.com.ifba.sessao.entity.Sessao;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class SessaoController {
 
     private final SessaoIService service;
-    private final DTOMapper mapper;
+    private final ObjectMapperUtill mapper;
 
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -122,13 +122,13 @@ public class SessaoController {
 
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable("id") Long id) {
-        service.desativar(id);
+        service.disable(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping(path = "/{id}/hard")
     public ResponseEntity<Void> apagar(@PathVariable("id") Long id) {
-        service.apagar(id);
+        service.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }
