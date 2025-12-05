@@ -1,11 +1,14 @@
 package br.com.ifba.filme.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.URL;
 
 import java.math.BigDecimal;
 
@@ -13,20 +16,25 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FilmeCadastroDTO {
-    @NotNull
+    @NotBlank(message = "O Título é obrigatório")
     @Size(max = 100)
     private String titulo;
 
+    @NotBlank(message = "A descrição é obrigatória")
     @Size(max = 2000)
     private String descricao;
 
+    @URL(message = "O formato da URL é inválido. Certifique-se de incluir 'http://' ou 'https://'.")
     private String trailerYoutube;
 
     @NotNull
     @DecimalMin("0.0")
     private BigDecimal preco;
 
+    @NotNull(message = "O campo 'meiaEntrada' é obrigatório.")
+    @JsonProperty("meia_entrada")
     private Boolean meiaEntrada;
 
+    @URL(message = "O formato da URL é inválido. Certifique-se de incluir 'http://' ou 'https://'.")
     private String imagemUrl;
 }

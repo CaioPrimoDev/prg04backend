@@ -5,6 +5,7 @@ import br.com.ifba.sala.dto.SalaCadastroDTO;
 import br.com.ifba.sala.dto.SalaResponseDTO;
 import br.com.ifba.sala.entity.Sala;
 import br.com.ifba.sala.service.SalaIService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,7 +26,7 @@ public class SalaController {
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SalaResponseDTO> salvar(@RequestBody SalaCadastroDTO dto) {
+    public ResponseEntity<SalaResponseDTO> salvar(@RequestBody @Valid SalaCadastroDTO dto) {
 
         Sala criado = service.save(dto);
 

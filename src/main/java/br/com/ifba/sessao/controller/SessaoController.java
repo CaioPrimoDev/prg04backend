@@ -5,6 +5,7 @@ import br.com.ifba.sessao.dto.SessaoCadastroDTO;
 import br.com.ifba.sessao.dto.SessaoResponseDTO;
 import br.com.ifba.sessao.entity.Sessao;
 import br.com.ifba.sessao.service.SessaoIService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class SessaoController {
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SessaoResponseDTO> criar(@RequestBody SessaoCadastroDTO dto) { // ✅ Recebe DTO
+    public ResponseEntity<SessaoResponseDTO> criar(@RequestBody @Valid SessaoCadastroDTO dto) { // ✅ Recebe DTO
 
         // OBS: Assumimos que service.save() foi alterado para: Sessao save(SessaoCadastroDTO dto)
         Sessao savedEntity = service.save(dto); // ⬅️ O Service lida com a conversão DTO -> Entidade
@@ -120,8 +121,10 @@ public class SessaoController {
                 .collect(Collectors.toList()));
     }
 
-    @PatchMapping("/{id}/desativar")
-    public ResponseEntity<Void> desativar(@PathVariable("id") Long id) {
+    @PatchMapping(path = "/{id}/desativar",
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> desativar(@PathVariable("id") @Valid Long id) {
         service.disable(id);
         return ResponseEntity.noContent().build();
     }

@@ -6,6 +6,7 @@ import br.com.ifba.usuario.dto.UsuarioListagemDTO;
 import br.com.ifba.usuario.dto.UsuarioResponseDTO;
 import br.com.ifba.usuario.entity.Usuario;
 import br.com.ifba.usuario.service.UsuarioIService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,7 +29,7 @@ public class UsuarioController {
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody UsuarioCadastroDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody @Valid UsuarioCadastroDTO dto) {
 
         // 1. Mapeia DTO de Entrada para a Entidade
         Usuario entityToSave = mapper.map(dto, Usuario.class);

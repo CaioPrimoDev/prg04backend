@@ -1,23 +1,26 @@
 package br.com.ifba.infrastructure.exception.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class ErrorResponse {
 
-    // Status HTTP numérico (e.g., 400, 404, 500)
-    private Integer status;
+    private final int status;
+    private final String message;
+    private final LocalDateTime timestamp;
+    // Usado condicionalmente no ApiExceptionHandler
 
-    private String error;
+    private String stacktrace; // Opcional, dependendo da flag printStackTrace
 
-    private String stacktrace;
-
-    public ErrorResponse(Integer status, String error) {
+    // Construtor principal
+    public ErrorResponse(int status, String message) {
         this.status = status;
-        this.error = error;
+        this.message = message;
+        this.timestamp = LocalDateTime.now();
     }
+
 }

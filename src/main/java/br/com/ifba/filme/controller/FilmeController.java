@@ -6,6 +6,7 @@ import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.filme.image_dto.ImagemUrlRequest;
 import br.com.ifba.filme.service.FilmeService;
 import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class FilmeController {
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FilmeResponseDTO> salvar(@RequestBody FilmeCadastroDTO dto) {
+    public ResponseEntity<FilmeResponseDTO> salvar(@RequestBody @Valid FilmeCadastroDTO dto) {
 
         Filme saved = service.save(dto);
 
@@ -86,10 +87,12 @@ public class FilmeController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(path = "/{id}/imagem")
+    @PutMapping(path = "/{id}/imagem",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FilmeResponseDTO> atualizarImagem(
             @PathVariable("id") Long id,
-            @RequestBody ImagemUrlRequest request) { // Mantém a classe ImagemUrlRequest
+            @RequestBody @Valid ImagemUrlRequest request) { // Mantém a classe ImagemUrlRequest
 
         Filme atualizado = service.atualizarImagem(id, request.getImagemUrl());
 

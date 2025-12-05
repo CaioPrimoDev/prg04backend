@@ -5,12 +5,12 @@ import br.com.ifba.reserva.dto.ReservaCadastroDTO;
 import br.com.ifba.reserva.dto.ReservaResponseDTO;
 import br.com.ifba.reserva.entity.Reserva;
 import br.com.ifba.reserva.service.ReservaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +25,7 @@ public class ReservaController {
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReservaResponseDTO> criarReserva(@RequestBody ReservaCadastroDTO dto) {
+    public ResponseEntity<ReservaResponseDTO> criarReserva(@RequestBody @Valid ReservaCadastroDTO dto) {
 
         // O Service agora recebe apenas o DTO, não entidades separadas
         Reserva novaReserva = service.criarReserva(dto);

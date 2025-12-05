@@ -5,6 +5,7 @@ import br.com.ifba.poltrona.dto.PoltronaCadastroDTO;
 import br.com.ifba.poltrona.dto.PoltronaResponseDTO;
 import br.com.ifba.poltrona.entity.Poltrona;
 import br.com.ifba.poltrona.service.PoltronaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,7 +40,7 @@ public class PoltronaController {
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PoltronaResponseDTO> save(@RequestBody PoltronaCadastroDTO dto) { // ✅ Recebe DTO
+    public ResponseEntity<PoltronaResponseDTO> save(@RequestBody @Valid PoltronaCadastroDTO dto) { // ✅ Recebe DTO
 
         // O service deve ser alterado para: Poltrona save(PoltronaCadastroDTO dto)
         Poltrona novaPoltrona = service.save(dto);
