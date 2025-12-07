@@ -4,10 +4,10 @@ import br.com.ifba.infrastructure.exception.BusinessException;
 import br.com.ifba.usuario.entity.Usuario;
 import br.com.ifba.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +53,8 @@ public class UsuarioService implements UsuarioIService {
     }
 
     @Override
-    public List<Usuario> findAll() {
-        return repository.findAll();
+    public Page<Usuario> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 }
 

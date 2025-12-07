@@ -8,6 +8,9 @@ import br.com.ifba.filme.service.FilmeService;
 import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,8 +58,18 @@ public class FilmeController {
     }
 
     @GetMapping(path = "/findall")
-    public ResponseEntity<List<FilmeResponseDTO>> listarTodos() {
-        return mapListToResponse(service.findAll());
+    public ResponseEntity<Page<FilmeResponseDTO>> listarTodos(@PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) {
+
+        Page<Filme> PageFilmes = service.findAll(pageable);
+
+        if(PageFilmes.isEmpty()) {
+            // Retorna 200 OK com uma lista vazia, ou 204 No Content, que é melhor que 404.
+            return ResponseEntity.ok(Page.empty());
+        }
+
+        Page<FilmeResponseDTO> PageDtos = PageFilmes.map(filme -> mapper.map(filme, FilmeResponseDTO.class));
+
+        return ResponseEntity.ok(PageDtos);
     }
 
     private ResponseEntity<List<FilmeResponseDTO>> mapListToResponse(List<Filme> filmes) {

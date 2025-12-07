@@ -7,13 +7,13 @@ import br.com.ifba.sala.entity.Sala;
 import br.com.ifba.sala.service.SalaIService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/salas")
@@ -39,15 +39,18 @@ public class SalaController {
 
     @GetMapping(path = "/findall",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<SalaResponseDTO>> listar() {
+    public ResponseEntity<Page<SalaResponseDTO>> listar(@PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) {
 
-        List<Sala> salas = service.findAll();
+        Page<Sala> salas = service.findAll(pageable);
 
-        List<SalaResponseDTO> dtos = salas.stream()
-                .map(sala -> mapper.map(sala, SalaResponseDTO.class))
-                .collect(Collectors.toList());
+        if(salas.isEmpty()) {
+            // Retorna 200 OK com uma lista vazia, ou 204 No Content, que é melhor que 404.
+            return ResponseEntity.ok(Page.empty());
+        }
 
-        return ResponseEntity.ok(dtos);
+        Page<SalaResponseDTO> PageDtos = salas.map(sala -> mapper.map(sala, SalaResponseDTO.class));
+
+        return ResponseEntity.ok(PageDtos);
     }
 
     @GetMapping(path = "/{id}",

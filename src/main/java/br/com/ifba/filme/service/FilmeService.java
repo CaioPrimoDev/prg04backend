@@ -5,6 +5,8 @@ import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.filme.repository.FilmeRepository;
 import br.com.ifba.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -42,8 +44,8 @@ public class FilmeService implements FilmeIService {
     }
 
     @Override
-    public List<Filme> findAll() {
-        return repository.findAll();
+    public Page<Filme> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
     @Override

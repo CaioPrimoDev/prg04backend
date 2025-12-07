@@ -5,9 +5,9 @@ import br.com.ifba.sala.dto.SalaCadastroDTO;
 import br.com.ifba.sala.entity.Sala;
 import br.com.ifba.sala.repository.SalaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +24,8 @@ public class SalaService implements SalaIService {
     }
 
     @Override
-    public List<Sala> findAll() {
-        return repository.findAll();
+    public Page<Sala> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
     @Override

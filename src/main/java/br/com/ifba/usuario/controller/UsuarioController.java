@@ -8,14 +8,13 @@ import br.com.ifba.usuario.entity.Usuario;
 import br.com.ifba.usuario.service.UsuarioIService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -79,21 +78,20 @@ public class UsuarioController {
 
     @GetMapping(path = "/findall",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UsuarioListagemDTO>> listarTodos() { // Retorna List<DTO>
+    public ResponseEntity<Page<UsuarioListagemDTO>> findAll(@PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) { // Retorna List<DTO>
 
-        List<Usuario> usuarios = usuarioService.findAll();
+        Page<Usuario> paginaUsuarios = usuarioService.findAll(pageable);
 
-        if(usuarios.isEmpty()) {
+        if(paginaUsuarios.isEmpty()) {
             // Retorna 200 OK com uma lista vazia, ou 204 No Content, que é melhor que 404.
-            return ResponseEntity.ok(Collections.emptyList());
+            return ResponseEntity.ok(Page.empty());
         }
 
         //  Transforma a Lista de Entidades em Lista de DTOs usando Streams
-        List<UsuarioListagemDTO> dtos = usuarios.stream()
-                .map(usuario -> mapper.map(usuario, UsuarioListagemDTO.class))
-                .collect(Collectors.toList());
+        Page<UsuarioListagemDTO> paginaDtos = paginaUsuarios
+                .map(usuario -> mapper.map(usuario, UsuarioListagemDTO.class));
 
-        return ResponseEntity.ok(dtos); // Retorna a lista de DTOs
+        return ResponseEntity.ok(paginaDtos); // Retorna a lista de DTOs
     }
 
     // Ele não retorna ou consome, então não há necessidade de um DTO especifico
