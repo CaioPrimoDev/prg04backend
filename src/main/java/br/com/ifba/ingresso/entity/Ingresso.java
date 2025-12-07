@@ -6,6 +6,7 @@ import br.com.ifba.usuario.entity.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
@@ -16,8 +17,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "ingresso",
         uniqueConstraints = {
+                // Impede que a mesma poltrona seja vendida 2x na mesma sessão
                 @UniqueConstraint(columnNames = {"sessao_id", "codigo_poltrona"})
-        } // Impede o registro da mesma poltrona na mesma sessão, VALIDAÇÃO MÁXIMA
+        }
 )
 public class Ingresso extends PersistenceEntity {
 
@@ -26,21 +28,22 @@ public class Ingresso extends PersistenceEntity {
     private Sessao sessao;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id") // Opcional se a compra for anônima
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    // AQUI ESTÁ A MÁGICA
-    // guarda apenas a String que dá match com o ID da sua DIV no front
-    @Column(name = "codigo_poltrona", nullable = false)
-    private String codigoPoltrona; // Ex: "A10"
+    // Substitui a entidade Poltrona e ReservaPoltrona
+    @Column(nullable = false)
+    private String codigoPoltrona; // "A10", "B5"
 
     @Enumerated(EnumType.STRING)
-    private StatusIngresso status; // PENDENTE (reserva), PAGO
+    @Column(nullable = false)
+    private StatusIngresso status;
 
-    private LocalDateTime dataReserva; // Para limpar reservas expiradas
+    // Campo CRUCIAL para a lógica de reserva
+    @Column(nullable = false)
+    private LocalDateTime dataReserva;
+
+    // Opcional: só preenche quando o status virar CONFIRMADO
+    private BigDecimal precoPago;
 }
 
-enum StatusIngresso {
-    BLOQUEADO_TEMPORARIO, // O usuário clicou (segura por 10 min)
-    CONFIRMADO            // Pagou
-}
