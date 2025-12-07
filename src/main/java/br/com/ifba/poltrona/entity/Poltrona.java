@@ -14,7 +14,6 @@ import lombok.*;
 @Table(name = "poltrona")
 public class Poltrona extends PersistenceEntity {
 
-    // poltrona específica para cada sessão
     @ManyToOne
     @JoinColumn(name = "sessao_id")
     private Sessao sessao;

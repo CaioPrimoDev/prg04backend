@@ -23,7 +23,7 @@ public class Reserva extends PersistenceEntity {
     @ManyToOne
     private Sessao sessao;
 
-    private String status; // TEMP, CONFIRMADA, CANCELADA
+    private StatusReserva status; // TEMP, CONFIRMADA, CANCELADA
 
     private String token;
 

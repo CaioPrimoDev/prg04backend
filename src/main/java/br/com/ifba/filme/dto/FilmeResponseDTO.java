@@ -14,6 +14,7 @@ public class FilmeResponseDTO {
     private String titulo;
     private String descricao;
     private String trailerYoutube;
+    private String duracao;
     private BigDecimal preco;
     private Boolean meiaEntrada;
     private String imagemUrl;

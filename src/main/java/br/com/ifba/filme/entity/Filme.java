@@ -21,6 +21,8 @@ public class Filme extends PersistenceEntity {
 
     private String trailerYoutube;
 
+    private String duracao;
+
     private BigDecimal preco;
 
     private Boolean meiaEntrada;

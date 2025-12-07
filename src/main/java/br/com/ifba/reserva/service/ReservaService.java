@@ -5,6 +5,7 @@ import br.com.ifba.poltrona.entity.Poltrona;
 import br.com.ifba.poltrona.repository.PoltronaRepository;
 import br.com.ifba.reserva.dto.ReservaCadastroDTO;
 import br.com.ifba.reserva.entity.Reserva;
+import br.com.ifba.reserva.entity.StatusReserva;
 import br.com.ifba.reserva.repository.ReservaRepository;
 import br.com.ifba.reservapoltrona.entity.ReservaPoltrona;
 import br.com.ifba.reservapoltrona.repository.ReservaPoltronaRepository;
@@ -70,7 +71,7 @@ public class ReservaService implements ReservaIService {
         Reserva novaReserva = Reserva.builder()
                 .usuario(usuario)
                 .sessao(sessao)
-                .status("TEMP")
+                .status(StatusReserva.CONFIRMADA)
                 .token(UUID.randomUUID().toString())
                 .expiracao(LocalDateTime.now().plusMinutes(15))
                 .total(BigDecimal.ZERO)

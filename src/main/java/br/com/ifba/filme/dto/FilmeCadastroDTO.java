@@ -27,6 +27,9 @@ public class FilmeCadastroDTO {
     @URL(message = "O formato da URL é inválido. Certifique-se de incluir 'http://' ou 'https://'.")
     private String trailerYoutube;
 
+    @NotBlank(message = "A duração é obrigatória")
+    private String duracao;
+
     @NotNull
     @DecimalMin("0.0")
     private BigDecimal preco;

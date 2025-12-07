@@ -28,6 +28,7 @@ public class FilmeService implements FilmeIService {
                 .trailerYoutube(dto.getTrailerYoutube())
                 .preco(dto.getPreco())
                 .meiaEntrada(dto.getMeiaEntrada())
+                .duracao(dto.getDuracao())
                 .ativo(true) // Ativo por padrão
                 .build();
         return repository.save(filme);
