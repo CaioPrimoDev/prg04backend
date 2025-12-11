@@ -3,14 +3,14 @@ package br.com.ifba.usuario.entity;
 import br.com.ifba.infrastructure.entity.PersistenceEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.mapping.PersistentEntity;
 
 @EqualsAndHashCode(callSuper = true)
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
+@Getter
+@Setter
 @Table(name = "usuario")
 public class Usuario extends PersistenceEntity {
 

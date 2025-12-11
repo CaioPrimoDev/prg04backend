@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
