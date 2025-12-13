@@ -42,6 +42,7 @@ public class Ingresso extends PersistenceEntity {
     @Column(nullable = false)
     private LocalDateTime dataReserva;
 
+    @Column(name = "preco_final")
     private BigDecimal precoPago;
 }
 

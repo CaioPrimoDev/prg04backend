@@ -12,7 +12,6 @@ import lombok.*;
 @Entity
 @Table(name = "sala")
 public class Sala extends PersistenceEntity {
-
     private String nome;
 }
 

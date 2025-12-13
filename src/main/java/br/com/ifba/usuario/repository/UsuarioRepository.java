@@ -5,9 +5,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    Optional<Usuario> findByCpf(String cpf);
-    Optional<Usuario> findByEmail(String email);
 
-    Optional<Usuario> findByCpfAndEmail(String cpf, String email);
+    // 1. Buscar pelo CPF da Pessoa associada ao Usuario
+    // O Spring Data JPA entende: SELECT u FROM Usuario u WHERE u.pessoa.cpf = :cpf
+    Optional<Usuario> findByPessoa_Cpf(String cpf);
+
+    // 2. Buscar pelo Email da Pessoa associada ao Usuario
+    // O Spring Data JPA entende: SELECT u FROM Usuario u WHERE u.pessoa.email = :email
+    Optional<Usuario> findByPessoa_Email(String email);
+
+    // 3. Buscar pelo CPF E Email da Pessoa (útil para validações mais estritas)
+    Optional<Usuario> findByPessoa_CpfAndPessoa_Email(String cpf, String email);
 }
+
+/*
+
+ */
 

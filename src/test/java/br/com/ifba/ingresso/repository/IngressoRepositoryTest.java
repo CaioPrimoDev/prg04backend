@@ -4,6 +4,8 @@ import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.filme.repository.FilmeRepository;
 import br.com.ifba.ingresso.entity.Ingresso;
 import br.com.ifba.ingresso.entity.StatusIngresso;
+import br.com.ifba.pessoa.entity.Pessoa;
+import br.com.ifba.pessoa.repository.PessoaRepository;
 import br.com.ifba.sala.entity.Sala;
 import br.com.ifba.sala.repository.SalaRepository;
 import br.com.ifba.sessao.entity.Sessao;
@@ -38,6 +40,7 @@ public class IngressoRepositoryTest {
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private FilmeRepository filmeRepository;
     @Autowired private SalaRepository salaRepository;
+    @Autowired private PessoaRepository pessoaRepository;
 
     // Entidades padrão para uso nos testes
     private Sessao sessaoPadrao;
@@ -59,8 +62,14 @@ public class IngressoRepositoryTest {
                 .build());
 
         usuarioPadrao = usuarioRepository.save(Usuario.builder()
-                .email("joao@email.com")
-                .cpf("12345678900")
+                .pessoa(pessoaRepository.save(
+                            Pessoa.builder()
+                            .email("joao@email.com")
+                            .cpf("12345678900")
+                            .build()
+                        )
+
+                )
                 .senha("123")
                 .status(true)
                 .build());

@@ -24,25 +24,18 @@ public class UsuarioController {
     private final UsuarioIService usuarioService;
     private final ObjectMapperUtill mapper;
 
-    // POST - Criar  usuário
     @PostMapping(path = "/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody @Valid UsuarioCadastroDTO dto) {
 
-        // 1. Mapeia DTO de Entrada para a Entidade
-        Usuario entityToSave = mapper.map(dto, Usuario.class);
+        Usuario criado = usuarioService.save(dto);
 
-        // 2. Salva a Entidade no Service (Service deve cuidar de adicionar data/status)
-        Usuario criado = usuarioService.save(entityToSave);
-
-        // 3. Mapeia a Entidade Criada para o DTO de Saída
         UsuarioResponseDTO responseDto = mapper.map(criado, UsuarioResponseDTO.class);
 
-        // 4. Retorna a Resposta Segura
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(responseDto); // ⬅️ Retorna o DTO, sem a senha
+                .body(responseDto);
     }
 
     // GET não usa consume, mas sim produces

@@ -14,7 +14,7 @@ public class ModelMapperConfig {
 
         modelMapper.getConfiguration()
                 .setAmbiguityIgnored(true)
-                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setMatchingStrategy(MatchingStrategies.LOOSE)
                 .setFieldMatchingEnabled(true)
                 .setFieldAccessLevel(
                         // Se eu tento importar dá conflito com o import 'org.springframework.context.annotation.Configuration;'

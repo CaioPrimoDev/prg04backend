@@ -1,5 +1,6 @@
 package br.com.ifba.usuario.dto;
 
+import br.com.ifba.usuario.entity.PerfilUsuario;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +13,6 @@ public class UsuarioListagemDTO {
     private String cpf;
     private String email;
     private Boolean status;
+    private PerfilUsuario perfil;
     //private LocalDateTime dataCadastro;
 }

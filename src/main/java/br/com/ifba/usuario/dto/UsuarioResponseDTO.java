@@ -1,8 +1,10 @@
 package br.com.ifba.usuario.dto;
 
+import br.com.ifba.usuario.entity.PerfilUsuario;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -12,7 +14,5 @@ public class UsuarioResponseDTO {
     private Long id;
     private String cpf;
     private String email;
-    private Boolean status;
-    //private LocalDateTime dataCadastro;
-    // SEM SENHA!
+    private Set<PerfilUsuario> perfis;
 }
