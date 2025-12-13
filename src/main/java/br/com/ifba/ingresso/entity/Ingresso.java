@@ -39,11 +39,9 @@ public class Ingresso extends PersistenceEntity {
     @Column(nullable = false)
     private StatusIngresso status;
 
-    // Campo CRUCIAL para a lógica de reserva
     @Column(nullable = false)
     private LocalDateTime dataReserva;
 
-    // Opcional: só preenche quando o status virar CONFIRMADO
     private BigDecimal precoPago;
 }
 

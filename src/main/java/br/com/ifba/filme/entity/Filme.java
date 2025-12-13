@@ -21,12 +21,14 @@ public class Filme extends PersistenceEntity {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
+    @Column(name = "trailer_youtube")
     private String trailerYoutube;
 
     private String duracao;
 
     private BigDecimal preco;
 
+    @Column(name = "meia_entrada")
     private Boolean meiaEntrada;
 
     /**
