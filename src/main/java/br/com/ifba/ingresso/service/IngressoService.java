@@ -11,6 +11,7 @@ import br.com.ifba.usuario.entity.Usuario;
 import br.com.ifba.usuario.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -116,15 +117,13 @@ public class IngressoService implements IngressoIService {
         // Talvez eu implemente isso um dia
         /*
          if (ingresso.getSessao().getDataHora().isBefore(LocalDateTime.now())) {
-            throw new RegraNegocioException("Não é possível cancelar ingresso de sessão já iniciada.");
+            throw new BusinessException("Não é possível cancelar ingresso de sessão já iniciada.");
         }
          */
 
-        // Opção A: Soft Delete (Mantém histórico, mas libera a poltrona)
         ingresso.setStatus(StatusIngresso.CANCELADO);
         ingressoRepository.save(ingresso);
 
-        // Opção B: Hard Delete (Se for apenas uma reserva PENDENTE, pode apagar do banco)
         /*
         if (ingresso.getStatus() == StatusIngresso.PENDENTE) {
             ingressoRepository.delete(ingresso);
@@ -133,5 +132,33 @@ public class IngressoService implements IngressoIService {
             ingressoRepository.save(ingresso);
         }
         */
+    }
+
+    @Override
+    @Transactional
+    // Todos os domingos ás 22h - Horario de São Paulo
+    @Scheduled(cron = "0 0 22 * * SUN", zone = "America/Sao_Paulo")
+    public void limparIngressosUsados() {
+
+        System.out.println("Iniciando limpeza de ingressos usados...");
+
+        // Executa o delete e retorna quantos foram apagados
+        long quantidadeDeletada = ingressoRepository.deleteByStatus(StatusIngresso.USADO);
+
+        System.out.println("Limpeza concluída! Total removido: " + quantidadeDeletada);
+    }
+
+    @Override
+    @Transactional
+    // Todos os domingos ás 20h - Horario de São Paulo
+    @Scheduled(cron = "0 0 20 * * SUN", zone = "America/Sao_Paulo")
+    public void limparIngressosCancelados() {
+
+        System.out.println("Iniciando limpeza de ingressos cancelados...");
+
+        // Executa o delete e retorna quantos foram apagados
+        long quantidadeDeletada = ingressoRepository.deleteByStatus(StatusIngresso.CANCELADO);
+
+        System.out.println("Limpeza concluída! Total removido: " + quantidadeDeletada);
     }
 }

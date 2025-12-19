@@ -49,4 +49,6 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
      * Lista o histórico de compras de um usuário.
      */
     List<Ingresso> findAllByUsuarioId(Long usuarioId);
+    long deleteByStatus(StatusIngresso status);
+
 }

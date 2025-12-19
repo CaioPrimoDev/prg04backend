@@ -17,4 +17,7 @@ public interface IngressoIService {
     Optional<Ingresso> findById(Long id);
     List<Ingresso> findByUsuarioId(Long usuarioId);
     void cancelar(Long id);
+
+    void limparIngressosUsados();
+    void limparIngressosCancelados();
 }
