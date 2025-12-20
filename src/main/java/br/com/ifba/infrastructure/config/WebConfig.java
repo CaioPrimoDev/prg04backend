@@ -11,7 +11,9 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Libera para todas as rotas do back
                 // COLOCAR O ENDEREÇO EXATO DO SEU FRONTEND (sem a barra no final)
-                .allowedOrigins("https://prg04frontend-react-9zja.vercel.app")
+                .allowedOrigins(
+                        "http://localhost:5173",
+                        "https://prg04frontend-react-9zja.vercel.app")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT");
     }
 }
