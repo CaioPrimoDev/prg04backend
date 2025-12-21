@@ -2,58 +2,65 @@ package br.com.ifba.infrastructure.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod; // <--- Não esqueça desse import
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        // BCrypt é o algoritmo padrão e mais recomendado
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Desabilita CSRF (necessário para POSTs funcionarem sem token)
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // MODO DESENVOLVIMENTO: Libera TUDO
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // <--- Chama a config abaixo
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        // endpoints públicos
+                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuarios/save").permitAll() // Caso use rota antiga
+                        // Todo o resto bloqueado
+                        .anyRequest().authenticated()
                 );
 
         return http.build();
     }
 
-    /*
-      @Bean
-     * public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-     *     http
-     *         // 1. Desabilita CSRF (Comum em APIs REST stateless)
-     *         .csrf(csrf -> csrf.disable())
-     *
-     *         // 2. Define as regras de autorização
-     *         .authorizeHttpRequests(auth -> auth
-     *             // Permite APENAS o método POST para o endpoint de cadastro
-     *             .requestMatchers(POST, "/usuarios/save").permitAll()
-     *             // Adicione aqui também seu endpoint de login, quando criá-lo:
-     *             // .requestMatchers(POST, "/auth/login").permitAll()
-     *
-     *             // Exige autenticação para todos os outros endpoints
-     *             .anyRequest().authenticated()
-     *         )
-     *
-     *         // 3. Adicione a configuração de sessão Stateless (necessária para JWT)
-     *         // Isso é fundamental para APIs REST que usam tokens
-     *         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-     *
-     *     return http.build();
-     * }
-     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // AQUI ESTÁ A MÁGICA: Adicionei seus domínios exatos aqui
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",                          // Seu React local
+                "https://prg04frontend-react-9zja.vercel.app"     // Seu React na Vercel
+        ));
+
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token")); // Headers comuns
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }
+
