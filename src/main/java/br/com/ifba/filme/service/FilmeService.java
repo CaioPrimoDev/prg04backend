@@ -4,11 +4,15 @@ import br.com.ifba.filme.dto.FilmeCadastroDTO;
 import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.filme.repository.FilmeRepository;
 import br.com.ifba.infrastructure.exception.BusinessException;
+import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
+import br.com.ifba.infrastructure.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -17,21 +21,53 @@ import java.util.Optional;
 public class FilmeService implements FilmeIService {
 
     private final FilmeRepository repository;
+    private final FileStorageService storageService;
 
     @Override
-    public Filme save(FilmeCadastroDTO dto) {
-        // Mapeia DTO para a Entidade Filme
+    @Transactional
+    public Filme save(FilmeCadastroDTO dto, MultipartFile imagem) {
+        String urlDaImagem = null;
+
+        // 1. Se veio um arquivo, faz o upload no Supabase e pega a URL
+        if (imagem != null && !imagem.isEmpty()) {
+            urlDaImagem = storageService.uploadImagem(imagem);
+        }
+
+        // 2. Constrói o objeto Filme
         Filme filme = Filme.builder()
                 .titulo(dto.getTitulo())
                 .descricao(dto.getDescricao())
-                .imagemUrl(dto.getImagemUrl())
+                .imagemUrl(urlDaImagem)
                 .trailerYoutube(dto.getTrailerYoutube())
                 .preco(dto.getPreco())
                 .meiaEntrada(dto.getMeiaEntrada())
                 .duracao(dto.getDuracao())
                 .ativo(true) // Ativo por padrão
                 .build();
+
         return repository.save(filme);
+    }
+
+    @Override
+    @Transactional
+    public Filme atualizar(Long id, FilmeCadastroDTO dto, MultipartFile imagem) {
+        Filme filmeExistente = repository.findById(id)
+                .orElseThrow(() -> new BusinessException("Filme não encontrado"));
+
+        filmeExistente.setTitulo(dto.getTitulo());
+        filmeExistente.setDescricao(dto.getDescricao());
+        filmeExistente.setTrailerYoutube(dto.getTrailerYoutube());
+        filmeExistente.setPreco(dto.getPreco());
+        filmeExistente.setMeiaEntrada(dto.getMeiaEntrada());
+        filmeExistente.setDuracao(dto.getDuracao());
+
+        if (imagem != null && !imagem.isEmpty()) {
+            String novaUrl = storageService.uploadImagem(imagem);
+            filmeExistente.setImagemUrl(novaUrl);
+        }
+        // Se 'imagem' for nula, ele simplesmente mantém o que já estava no 'filmeExistente'
+
+        return repository.save(filmeExistente);
     }
 
     @Override
@@ -45,6 +81,7 @@ public class FilmeService implements FilmeIService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Filme> findAll(Pageable pageable) {
         return repository.findAll(pageable);
     }
@@ -76,17 +113,6 @@ public class FilmeService implements FilmeIService {
             );
         }
         repository.deleteById(id);
-    }
-
-    @Transactional
-    public Filme atualizarImagem(Long id, String novaUrl) {
-        Filme filme = repository.findById(id)
-                .orElseThrow(() -> new BusinessException(
-                        "Filme com o ID " + id + " não encontrado para atualização de imagem."
-                ));
-
-        filme.setImagemUrl(novaUrl);
-        return repository.save(filme);
     }
 
 }

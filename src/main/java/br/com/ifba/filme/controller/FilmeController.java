@@ -3,9 +3,10 @@ package br.com.ifba.filme.controller;
 import br.com.ifba.filme.dto.FilmeCadastroDTO;
 import br.com.ifba.filme.dto.FilmeResponseDTO;
 import br.com.ifba.filme.entity.Filme;
-import br.com.ifba.filme.image_dto.ImagemUrlRequest;
 import br.com.ifba.filme.service.FilmeService;
 import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -26,20 +28,27 @@ import java.util.stream.Collectors;
 public class FilmeController {
 
     private final FilmeService service;
-    private final ObjectMapperUtill mapper; // Assumindo injeção
+    private final ObjectMapperUtill mapper;
 
-    @PostMapping(path = "/save",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FilmeResponseDTO> salvar(@RequestBody @Valid FilmeCadastroDTO dto) {
+    // Precisamos do ObjectMapper 'puro' do Jackson para ler o JSON que vem como String
+    // Necessário por causa do MULTIPART_FORM_DATA
+    private final ObjectMapper jsonMapper;
 
-        Filme saved = service.save(dto);
+    @PostMapping(path = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<FilmeResponseDTO> salvar(
+            @RequestPart("dados") @Valid String filmeJson,  // O JSON vem como texto
+            @RequestPart("imagem") MultipartFile imagem     // O Arquivo vem como binário
+    ) throws JsonProcessingException {
+
+        // Converte a String "dados" para o Objeto FilmeCadastroDTO
+        FilmeCadastroDTO dto = jsonMapper.readValue(filmeJson, FilmeCadastroDTO.class);
+
+        Filme saved = service.save(dto, imagem);
 
         FilmeResponseDTO responseDto = mapper.map(saved, FilmeResponseDTO.class);
 
-        // Constrói a URI para o status 201 Created
         URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequestUri() // Uso fromCurrentRequestUri para evitar duplicidade de /save
+                .fromCurrentRequestUri()
                 .path("/{id}")
                 .buildAndExpand(saved.getId())
                 .toUri();
@@ -100,17 +109,20 @@ public class FilmeController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(path = "/{id}/imagem",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FilmeResponseDTO> atualizarImagem(
+    @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<FilmeResponseDTO> atualizar(
             @PathVariable("id") Long id,
-            @RequestBody @Valid ImagemUrlRequest request) { // Mantém a classe ImagemUrlRequest
+            @RequestPart("dados") @Valid String filmeJson,            // JSON com título, preço, etc.
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem // Arquivo opcional
+    ) throws JsonProcessingException {
 
-        Filme atualizado = service.atualizarImagem(id, request.getImagemUrl());
+        // 1. Converte o JSON String para DTO
+        FilmeCadastroDTO dto = jsonMapper.readValue(filmeJson, FilmeCadastroDTO.class);
 
-        FilmeResponseDTO responseDto = mapper.map(atualizado, FilmeResponseDTO.class);
+        // 2. Chama o serviço de atualização
+        Filme filmeAtualizado = service.atualizar(id, dto, imagem);
 
-        return ResponseEntity.ok(responseDto);
+        // 3. Retorna o DTO atualizado
+        return ResponseEntity.ok(mapper.map(filmeAtualizado, FilmeResponseDTO.class));
     }
 }

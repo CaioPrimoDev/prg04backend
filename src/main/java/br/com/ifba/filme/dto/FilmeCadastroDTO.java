@@ -37,7 +37,4 @@ public class FilmeCadastroDTO {
     @NotNull(message = "O campo 'meiaEntrada' é obrigatório.")
     @JsonProperty("meia_entrada")
     private Boolean meiaEntrada;
-
-    @URL(message = "O formato da URL é inválido. Certifique-se de incluir 'http://' ou 'https://'.")
-    private String imagemUrl;
 }
