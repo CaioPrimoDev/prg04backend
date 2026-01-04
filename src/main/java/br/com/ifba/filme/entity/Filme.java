@@ -24,6 +24,7 @@ public class Filme extends PersistenceEntity {
     @Column(name = "trailer_youtube")
     private String trailerYoutube;
 
+    // Transformar isso em númerico para cálculos futuros
     private String duracao;
 
     private BigDecimal preco;

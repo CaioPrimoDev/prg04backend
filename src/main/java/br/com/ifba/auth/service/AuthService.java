@@ -3,6 +3,7 @@ package br.com.ifba.auth.service;
 import br.com.ifba.auth.dto.LoginDTO;
 import br.com.ifba.auth.dto.LoginResponseDTO;
 import br.com.ifba.infrastructure.exception.BusinessException;
+import br.com.ifba.infrastructure.security.TokenService;
 import br.com.ifba.usuario.dto.UsuarioCadastroDTO;
 import br.com.ifba.usuario.entity.Usuario;
 import br.com.ifba.usuario.service.UsuarioIService;
@@ -11,14 +12,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UsuarioIService usuarioService; // Usa o seu service existente
     private final PasswordEncoder passwordEncoder; // Para validar a senha no login
+    private final TokenService tokenService;
 
     /**
      * Lógica de Login Híbrido (CPF ou Email)
@@ -26,7 +26,7 @@ public class AuthService {
     public LoginResponseDTO login(LoginDTO dto) {
         Usuario usuario;
 
-        // 1. Descobre se é Email ou CPF
+        // Logica para descobrir se é Email ou CPF
         if (dto.getLogin().contains("@")) {
             usuario = usuarioService.findByEmail(dto.getLogin());
         } else {
@@ -35,13 +35,13 @@ public class AuthService {
             usuario = usuarioService.findByCpf(cpfLimpo);
         }
 
-        // 2. Verifica a senha (Senha digitada vs Hash do banco)
+        // Verifica a senha (Senha digitada vs Hash do banco, já que ela foi encripada antes de ser salva)
         if (!passwordEncoder.matches(dto.getSenha(), usuario.getSenha())) {
-            throw new BusinessException("Credenciais inválidas."); // Não diga se foi senha ou email para segurança
+            throw new BusinessException("Senha inválidas.");
         }
 
-        // 3. Gera o Token (Simulado com UUID por enquanto)
-        String token = UUID.randomUUID().toString();
+        // Gera o Token (Simulado com UUID por enquanto)
+        String token = tokenService.generateToken(usuario);
 
         // Retorna o DTO com Token e talvez o Perfil principal
         return new LoginResponseDTO(token, usuario.getPessoa().getEmail());
