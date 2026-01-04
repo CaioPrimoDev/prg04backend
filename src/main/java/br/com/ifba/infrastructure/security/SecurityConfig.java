@@ -29,20 +29,30 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                // Indica que não vamos guardar sessão no servidor (STATELESS)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // Rotas Públicas
+                        // === PÚBLICO ===
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/usuarios/save").permitAll() // Caso eu use rota antiga
-                        // Rotas de Admin (Exemplo)
-                        .requestMatchers(HttpMethod.POST, "/filmes").hasRole("ADMIN")
+
+                        // === FILMES E SESSÕES (Gestão) ===
+                        // Precisam de Matchers porque só ADMIN/GESTOR podem alterar esses dados
+                        .requestMatchers(HttpMethod.POST, "/filmes/**", "/sessoes/**").hasAnyRole("ADMIN", "GESTOR")
+                        .requestMatchers(HttpMethod.PUT, "/filmes/**", "/sessoes/**").hasAnyRole("ADMIN", "GESTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/filmes/**", "/sessoes/**").hasAnyRole("ADMIN", "GESTOR")
+
+                        // === USUÁRIOS (Admin) ===
+                        // Ainda vou implementar
+                        .requestMatchers(HttpMethod.POST, "/auth/register-gestor").hasRole("ADMIN")
+                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
+
+                        // === INGRESSOS DE TODO O RESTO ===
+                        // Não precisa de matcher específico se a regra for apenas "estar logado".
+                        // Clientes, Gestores e Admins podem comprar ingressos.
                         .anyRequest().authenticated()
                 )
-                // Adiciona o filtro JWT antes do filtro padrão do Spring
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-                .cors(c -> c.configurationSource(corsConfigurationSource())) // Mantenha seu CORS
+                .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .build();
     }
 
@@ -55,15 +65,16 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // AQUI ESTÁ A MÁGICA: Adicionei seus domínios exatos aqui
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173",                          // Seu React local
-                "https://prg04frontend-react-9zja.vercel.app"     // Seu React na Vercel
+        // Configuração para aceitar Vercel dinâmico e Localhost
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173",
+                "https://prg04frontend-react.vercel.app",   // URL Principal (Produção)
+                "https://prg04frontend-react-*.vercel.app"  // URL Dinâmica (Previews/Branches)
         ));
 
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token")); // Headers comuns
-
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Adicione "x-auth-token" caso utilize no futuro, mas os padrões estão ok
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
