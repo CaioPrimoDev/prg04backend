@@ -24,7 +24,7 @@ public class Filme extends PersistenceEntity {
     @Column(name = "trailer_youtube")
     private String trailerYoutube;
 
-    // Transformar isso em númerico para cálculos futuros
+    // Sugestão: Idealmente mudar para Integer no futuro, mas mantive String conforme seu código
     private String duracao;
 
     private BigDecimal preco;
@@ -32,13 +32,20 @@ public class Filme extends PersistenceEntity {
     @Column(name = "meia_entrada")
     private Boolean meiaEntrada;
 
+    // --- NOVOS CAMPOS ---
+    private String genero; // Ex: "Ação", "Comédia"
+
+    @Enumerated(EnumType.STRING) // Salva como texto no banco: "LIVRE", "DEZ", etc.
+    private Classificacao classificacao;
+    // --------------------
+
     /**
      * URL pública/assinada para a imagem (Supabase Storage)
-    **/
+     **/
     @Column(name = "imagem_url", columnDefinition = "TEXT")
     private String imagemUrl;
 
     // controle lógico
+    @Builder.Default // Garante que o builder use o valor padrão
     private Boolean ativo = true;
 }
-

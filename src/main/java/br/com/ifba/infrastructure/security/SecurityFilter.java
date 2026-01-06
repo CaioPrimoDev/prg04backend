@@ -23,26 +23,55 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-                                    HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain
+                            HttpServletRequest request,
+                            HttpServletResponse response,
+                            FilterChain filterChain
                                     ) throws ServletException, IOException {
-        var token = this.recoverToken(request);
 
-        if (token != null) {
-            var login = tokenService.validateToken(token); // Pega o email de dentro do token
+        // LOG 1: Saber qual rota está sendo chamada
+        System.out.println("--- INICIO FILTER ---");
+        System.out.println("URL Chamada: " + request.getRequestURI());
 
-            if (!login.isEmpty()) {
-                // Busca o usuário completo no banco (com as permissões/perfis)
-                UserDetails user = usuarioRepository.findByPessoa_Email(login)
-                        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        try {
+            var token = this.recoverToken(request);
 
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            if (token != null) {
+                System.out.println("1. Token encontrado: " + token.substring(0, Math.min(token.length(), 10)) + "...");
 
-                // Salva no contexto: "O usuário X está logado!"
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                // Valida o token e extrai o login (email)
+                var login = tokenService.validateToken(token);
+                System.out.println("2. Login recuperado do Token: " + login);
+
+                if (login != null && !login.isEmpty()) {
+                    // Tenta achar o usuário pelo Email
+                    var userOptional = usuarioRepository.findByPessoa_Email(login);
+
+                    if (userOptional.isPresent()) {
+                        UserDetails user = userOptional.get();
+                        System.out.println("3. Usuário achado no DB: " + user.getUsername());
+
+                        // --- AQUI ESTÁ O SEGREDO DO ERRO 403 ---
+                        // Se imprimir "[]", o problema é no Banco de Dados ou no FetchType.EAGER
+                        // Se imprimir "[ROLE_ADMIN]", o problema é no SecurityConfig
+                        System.out.println("4. Authorities (Permissões): " + user.getAuthorities());
+
+                        var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        System.out.println("5. Autenticação definida no Contexto com sucesso!");
+                    } else {
+                        System.out.println("ERRO: Usuário NÃO encontrado no banco para o email: " + login);
+                    }
+                }
+            } else {
+                System.out.println("AVISO: Requisição sem Token (normal para Login/Cadastro, erro para /save).");
             }
+        } catch (Exception e) {
+            // Log detalhado para entender por que falhou
+            System.out.println("ERRO CRÍTICO no SecurityFilter: " + e.getMessage());
+            e.printStackTrace();
         }
+
+        System.out.println("--- FIM FILTER (passando para o próximo passo) ---");
         filterChain.doFilter(request, response);
     }
 

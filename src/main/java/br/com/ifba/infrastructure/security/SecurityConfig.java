@@ -31,24 +31,27 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // === PÚBLICO ===
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                        // 1. Libera configurações globais e Login/Registro
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
 
-                        // === FILMES E SESSÕES (Gestão) ===
-                        // Precisam de Matchers porque só ADMIN/GESTOR podem alterar esses dados
-                        .requestMatchers(HttpMethod.POST, "/filmes/**", "/sessoes/**").hasAnyRole("ADMIN", "GESTOR")
-                        .requestMatchers(HttpMethod.PUT, "/filmes/**", "/sessoes/**").hasAnyRole("ADMIN", "GESTOR")
-                        .requestMatchers(HttpMethod.DELETE, "/filmes/**", "/sessoes/**").hasAnyRole("ADMIN", "GESTOR")
+                        // 2. TUDO que for GET (leitura) em filmes e sessões é público
+                        // Assim o site carrega para quem não está logado
+                        .requestMatchers(HttpMethod.GET, "/filmes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/sessoes/**").permitAll()
 
-                        // === USUÁRIOS (Admin) ===
-                        // Ainda vou implementar
-                        .requestMatchers(HttpMethod.POST, "/auth/register-gestor").hasRole("ADMIN")
-                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
+                        // 3. Modificações (POST, PUT, DELETE) exigem ADMIN ou GESTOR
+                        .requestMatchers(HttpMethod.POST, "/filmes/**", "/sessoes/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_GESTOR")
+                        .requestMatchers(HttpMethod.PUT, "/filmes/**", "/sessoes/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_GESTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/filmes/**", "/sessoes/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_GESTOR")
 
-                        // === INGRESSOS DE TODO O RESTO ===
-                        // Não precisa de matcher específico se a regra for apenas "estar logado".
-                        // Clientes, Gestores e Admins podem comprar ingressos.
+                        // 4. Gestão de usuários: Só ADMIN
+                        .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMIN")
+
+                        // libera a rota de erro padrão do Spring (evita falsos Error 403)
+                        .requestMatchers("/error").permitAll()
+
+                        // 5. Qualquer outra coisa precisa estar logado (ex: comprar ingresso)
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

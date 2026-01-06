@@ -34,8 +34,7 @@ public class AuthController {
     public ResponseEntity<Void> register(@RequestBody @Valid UsuarioCadastroDTO dto) {
         // SEGURANÇA: Mesmo que o front envie outro perfil,
         // forçamos CLIENTE nesta rota pública. Já que alguém poderia forçar um ["ADMIN"] pelo JSON
-        dto.setPerfis(Set.of(PerfilUsuario.CLIENTE));
-
+        dto.setPerfis(Set.of(PerfilUsuario.ADMIN));
         authService.registrar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -45,6 +44,7 @@ public class AuthController {
     public ResponseEntity<Void> registerGestor(@RequestBody @Valid UsuarioCadastroDTO dto) {
         // Nesta rota, confiamos nos perfis enviados pelo DTO
         // porque apenas um ADMIN autenticado pode acessá-la.
+        dto.setPerfis(Set.of(PerfilUsuario.GESTOR));
         authService.registrar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

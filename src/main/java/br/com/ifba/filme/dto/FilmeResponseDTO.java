@@ -3,7 +3,6 @@ package br.com.ifba.filme.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 
 @Data
@@ -18,4 +17,7 @@ public class FilmeResponseDTO {
     private BigDecimal preco;
     private Boolean meiaEntrada;
     private String imagemUrl;
+    private String genero;
+    private String classificacao;
+    private Boolean ativo;
 }

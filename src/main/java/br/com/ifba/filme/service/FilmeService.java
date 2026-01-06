@@ -4,7 +4,6 @@ import br.com.ifba.filme.dto.FilmeCadastroDTO;
 import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.filme.repository.FilmeRepository;
 import br.com.ifba.infrastructure.exception.BusinessException;
-import br.com.ifba.infrastructure.mapper.ObjectMapperUtill;
 import br.com.ifba.infrastructure.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,12 +27,12 @@ public class FilmeService implements FilmeIService {
     public Filme save(FilmeCadastroDTO dto, MultipartFile imagem) {
         String urlDaImagem = null;
 
-        // 1. Se veio um arquivo, faz o upload no Supabase e pega a URL
+        // Se veio um arquivo, faz o upload no Supabase e pega a URL
         if (imagem != null && !imagem.isEmpty()) {
             urlDaImagem = storageService.uploadImagem(imagem);
         }
 
-        // 2. Constrói o objeto Filme
+        // Constrói o objeto Filme
         Filme filme = Filme.builder()
                 .titulo(dto.getTitulo())
                 .descricao(dto.getDescricao())
@@ -42,6 +41,8 @@ public class FilmeService implements FilmeIService {
                 .preco(dto.getPreco())
                 .meiaEntrada(dto.getMeiaEntrada())
                 .duracao(dto.getDuracao())
+                .genero(dto.getGenero())
+                .classificacao(dto.getClassificacao())
                 .ativo(true) // Ativo por padrão
                 .build();
 
@@ -60,6 +61,8 @@ public class FilmeService implements FilmeIService {
         filmeExistente.setPreco(dto.getPreco());
         filmeExistente.setMeiaEntrada(dto.getMeiaEntrada());
         filmeExistente.setDuracao(dto.getDuracao());
+        filmeExistente.setGenero(dto.getGenero());
+        filmeExistente.setClassificacao(dto.getClassificacao());
 
         if (imagem != null && !imagem.isEmpty()) {
             String novaUrl = storageService.uploadImagem(imagem);

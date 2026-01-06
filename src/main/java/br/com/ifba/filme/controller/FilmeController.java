@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -36,9 +37,14 @@ public class FilmeController {
 
     @PostMapping(path = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FilmeResponseDTO> salvar(
-            @RequestPart("dados") @Valid String filmeJson,  // O JSON vem como texto
+            @RequestPart("filme") @Valid String filmeJson,  // O JSON vem como texto
             @RequestPart("imagem") MultipartFile imagem     // O Arquivo vem como binário
     ) throws JsonProcessingException {
+
+        // DEBUG
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Usuário logado: " + auth.getName());
+        System.out.println("Permissões carregadas: " + auth.getAuthorities());
 
         // Converte a String "dados" para o Objeto FilmeCadastroDTO
         FilmeCadastroDTO dto = jsonMapper.readValue(filmeJson, FilmeCadastroDTO.class);
@@ -73,10 +79,12 @@ public class FilmeController {
 
         if(PageFilmes.isEmpty()) {
             // Retorna 200 OK com uma lista vazia, ou 204 No Content, que é melhor que 404.
-            return ResponseEntity.ok(Page.empty());
+            return ResponseEntity.ok(Page.empty(pageable));
         }
 
-        Page<FilmeResponseDTO> PageDtos = PageFilmes.map(filme -> mapper.map(filme, FilmeResponseDTO.class));
+        Page<FilmeResponseDTO> PageDtos = PageFilmes.map(filme ->
+                mapper.map(filme, FilmeResponseDTO.class)
+        );
 
         return ResponseEntity.ok(PageDtos);
     }
@@ -109,10 +117,10 @@ public class FilmeController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(path = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FilmeResponseDTO> atualizar(
             @PathVariable("id") Long id,
-            @RequestPart("dados") @Valid String filmeJson,            // JSON com título, preço, etc.
+            @RequestPart("filme") @Valid String filmeJson,            // JSON com título, preço, etc.
             @RequestPart(value = "imagem", required = false) MultipartFile imagem // Arquivo opcional
     ) throws JsonProcessingException {
 

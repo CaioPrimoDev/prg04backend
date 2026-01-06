@@ -1,5 +1,6 @@
 package br.com.ifba.filme.dto;
 
+import br.com.ifba.filme.entity.Classificacao;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -33,6 +34,12 @@ public class FilmeCadastroDTO {
     @NotNull
     @DecimalMin("0.0")
     private BigDecimal preco;
+
+    @NotBlank(message = "O gênero é obrigatório")
+    private String genero;
+
+    @NotNull(message = "A classificação indicativa é obrigatória")
+    private Classificacao classificacao;
 
     @NotNull(message = "O campo 'meiaEntrada' é obrigatório.")
     @JsonProperty("meia_entrada")
