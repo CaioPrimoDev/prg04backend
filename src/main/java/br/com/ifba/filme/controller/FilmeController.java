@@ -105,13 +105,19 @@ public class FilmeController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping(path = "/{id}")
+    @PutMapping(path = "/disable/{id}")
     public ResponseEntity<Void> desativar(@PathVariable("id") Long id) {
         service.disable(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping(path = "/{id}/hard")
+    @PutMapping(path = "/activate/{id}")
+    public ResponseEntity<Void> ativar(@PathVariable("id") Long id) {
+        service.activate(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(path = "/delete/{id}/hard")
     public ResponseEntity<Void> apagar(@PathVariable("id") Long id) {
         service.deleteById(id);
         return ResponseEntity.noContent().build();

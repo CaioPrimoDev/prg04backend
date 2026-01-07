@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TokenService {
@@ -23,11 +25,17 @@ public class TokenService {
     // GERA O TOKEN  toda vez que faz login
     public String generateToken(Usuario usuario) {
         try {
+
+            List<String> roles = usuario.getPerfis().stream()
+                    .map(perfil -> perfil.toString()) // ou perfil.getDescricao() se for Enum customizado
+                    .collect(Collectors.toList());
+
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
                     .withIssuer("auth-api-cine") // Quem emitiu
                     .withSubject(usuario.getPessoa().getEmail()) // Quem é o dono (Email)
                     .withClaim("id", usuario.getId()) // Guardamos o ID pra facilitar
+                    .withClaim("roles", roles)
                     .withExpiresAt(genExpirationDate()) // Expira em 2 horas
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
@@ -45,12 +53,13 @@ public class TokenService {
                     .verify(token)
                     .getSubject(); // Retorna o Email que estava dentro do token
         } catch (JWTVerificationException exception) {
+            System.out.println("ERRO NA VALIDAÇÃO DO TOKEN: " + exception.getMessage());
             return ""; // Token inválido ou expirado
         }
     }
 
     private Instant genExpirationDate() {
         // Token dura 2 horas  segundo o fuso horario de Brasilia(-03:00)
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusHours(5).toInstant(ZoneOffset.of("-03:00"));
     }
 }

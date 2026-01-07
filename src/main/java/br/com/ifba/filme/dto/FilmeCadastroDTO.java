@@ -44,4 +44,7 @@ public class FilmeCadastroDTO {
     @NotNull(message = "O campo 'meiaEntrada' é obrigatório.")
     @JsonProperty("meia_entrada")
     private Boolean meiaEntrada;
+
+    @NotNull(message = "O campo 'ativo' é obrigatório")
+    private Boolean ativo;
 }

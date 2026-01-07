@@ -43,7 +43,7 @@ public class FilmeService implements FilmeIService {
                 .duracao(dto.getDuracao())
                 .genero(dto.getGenero())
                 .classificacao(dto.getClassificacao())
-                .ativo(true) // Ativo por padrão
+                .ativo(dto.getAtivo())
                 .build();
 
         return repository.save(filme);
@@ -96,6 +96,7 @@ public class FilmeService implements FilmeIService {
 
     // delete lógico (desativar)
     @Transactional
+    @Override
     public void disable(Long id) {
         Filme filme = repository.findById(id)
                 .orElseThrow(() -> new BusinessException(
@@ -103,6 +104,18 @@ public class FilmeService implements FilmeIService {
                 ));
 
         filme.setAtivo(false);
+        repository.save(filme);
+    }
+
+    @Transactional
+    @Override
+    public void activate(Long id) {
+        Filme filme = repository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        "Filme com o ID " + id + " não encontrado para ativação."
+                ));
+
+        filme.setAtivo(true);
         repository.save(filme);
     }
 

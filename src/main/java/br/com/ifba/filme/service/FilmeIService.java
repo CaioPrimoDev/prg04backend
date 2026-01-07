@@ -17,6 +17,7 @@ public interface FilmeIService {
     Page<Filme> findAll(Pageable pageable);
     Optional<Filme> findById(Long id);
     void disable(Long id);
+    void activate(Long id);
     void deleteById(Long id);
     Filme atualizar(Long id, FilmeCadastroDTO dto, MultipartFile imagem);
 
