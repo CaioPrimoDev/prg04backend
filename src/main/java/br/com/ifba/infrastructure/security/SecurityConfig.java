@@ -33,7 +33,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // 1. Libera configurações globais e Login/Registro
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("auth/register").permitAll()
 
                         // 2. TUDO que for GET (leitura) em filmes e sessões é público
                         // Assim o site carrega para quem não está logado
@@ -47,6 +48,7 @@ public class SecurityConfig {
 
                         // 4. Gestão de usuários: Só ADMIN
                         .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/auth/register-gestor").hasAuthority("ROLE_ADMIN")
 
                         // libera a rota de erro padrão do Spring (evita falsos Error 403)
                         .requestMatchers("/error").permitAll()

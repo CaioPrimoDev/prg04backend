@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/usuarios")
 @RequiredArgsConstructor
@@ -87,12 +89,26 @@ public class UsuarioController {
         return ResponseEntity.ok(paginaDtos); // Retorna a lista de DTOs
     }
 
-    // Ele não retorna ou consome, então não há necessidade de um DTO especifico
+    @GetMapping("/gestores")
+    public ResponseEntity<List<UsuarioResponseDTO>> listarGestores() {
+        List<UsuarioResponseDTO> gestores = usuarioService.listarGestores();
+        return ResponseEntity.ok(gestores);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> alternarStatus(@PathVariable Long id) {
+        usuarioService.alternarStatus(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity<Void> deletar(@PathVariable("id") Long id) {
         usuarioService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+
+
 }
 
 

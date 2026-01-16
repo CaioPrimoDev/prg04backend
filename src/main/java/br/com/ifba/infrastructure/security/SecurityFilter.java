@@ -50,9 +50,6 @@ public class SecurityFilter extends OncePerRequestFilter {
                         UserDetails user = userOptional.get();
                         System.out.println("3. Usuário achado no DB: " + user.getUsername());
 
-                        // --- AQUI ESTÁ O SEGREDO DO ERRO 403 ---
-                        // Se imprimir "[]", o problema é no Banco de Dados ou no FetchType.EAGER
-                        // Se imprimir "[ROLE_ADMIN]", o problema é no SecurityConfig
                         System.out.println("4. Authorities (Permissões): " + user.getAuthorities());
 
                         var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

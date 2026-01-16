@@ -1,6 +1,7 @@
 package br.com.ifba.usuario.dto;
 
 import br.com.ifba.usuario.entity.PerfilUsuario;
+import br.com.ifba.usuario.entity.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,5 +15,14 @@ public class UsuarioResponseDTO {
     private Long id;
     private String cpf;
     private String email;
+    private boolean status;
     private Set<PerfilUsuario> perfis;
+
+    public UsuarioResponseDTO(Usuario usuario) {
+        this.id = usuario.getId();
+        this.cpf = usuario.getPessoa().getCpf();
+        this.email = usuario.getPessoa().getEmail();
+        this.status = usuario.getStatus(); // ou .getStatus() dependendo do Lombok
+        this.perfis = usuario.getPerfis();
+    }
 }

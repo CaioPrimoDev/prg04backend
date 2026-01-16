@@ -39,7 +39,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    // ROTA PROTEGIDA (.hasRole("ADMIN")): Criação de Gestores/Admins
+    // ROTA PROTEGIDA (.hasRole("ADMIN")): Criação de Gestores
     @PostMapping("/register-gestor")
     public ResponseEntity<Void> registerGestor(@RequestBody @Valid UsuarioCadastroDTO dto) {
         // Nesta rota, confiamos nos perfis enviados pelo DTO

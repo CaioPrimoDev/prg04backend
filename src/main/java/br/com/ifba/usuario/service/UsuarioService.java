@@ -4,6 +4,8 @@ import br.com.ifba.infrastructure.exception.BusinessException;
 import br.com.ifba.pessoa.entity.Pessoa;
 import br.com.ifba.pessoa.repository.PessoaRepository;
 import br.com.ifba.usuario.dto.UsuarioCadastroDTO;
+import br.com.ifba.usuario.dto.UsuarioResponseDTO;
+import br.com.ifba.usuario.entity.PerfilUsuario;
 import br.com.ifba.usuario.entity.Usuario;
 import br.com.ifba.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +84,28 @@ public class UsuarioService implements UsuarioIService {
     @Override
     public Page<Usuario> findAll(Pageable pageable) {
         return usuarioRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<UsuarioResponseDTO> listarGestores() {
+        // Busca as entidades no banco
+        List<Usuario> usuarios = usuarioRepository.findAllByPerfil(PerfilUsuario.GESTOR);
+
+        // Converte Lista de Usuario -> Lista de UsuarioResponseDTO
+        return usuarios.stream()
+                .map(UsuarioResponseDTO::new) // Usa aquele construtor que criamos acima
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void alternarStatus(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Inverte o status atual
+        usuario.setStatus(!usuario.getStatus());
+
+        usuarioRepository.save(usuario);
     }
 }
 
