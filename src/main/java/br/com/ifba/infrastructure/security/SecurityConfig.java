@@ -77,7 +77,7 @@ public class SecurityConfig {
                 "https://prg04frontend-react-*.vercel.app"  // URL Dinâmica (Previews/Branches)
         ));
 
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         // Adicione "x-auth-token" caso utilize no futuro, mas os padrões estão ok
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token"));
         configuration.setAllowCredentials(true);

@@ -103,7 +103,7 @@ public class UsuarioService implements UsuarioIService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         // Inverte o status atual
-        usuario.setStatus(!usuario.getStatus());
+        usuario.setStatus( !usuario.getStatus() );
 
         usuarioRepository.save(usuario);
     }

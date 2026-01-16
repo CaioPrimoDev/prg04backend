@@ -20,6 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/usuarios")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class UsuarioController {
 
@@ -95,7 +96,7 @@ public class UsuarioController {
         return ResponseEntity.ok(gestores);
     }
 
-    @PatchMapping("/{id}/status")
+    @PatchMapping(path = "/alternar-status/{id}")
     public ResponseEntity<Void> alternarStatus(@PathVariable Long id) {
         usuarioService.alternarStatus(id);
         return ResponseEntity.noContent().build();
