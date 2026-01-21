@@ -130,13 +130,10 @@ public class FilmeController {
             @RequestPart(value = "imagem", required = false) MultipartFile imagem // Arquivo opcional
     ) throws JsonProcessingException {
 
-        // 1. Converte o JSON String para DTO
         FilmeCadastroDTO dto = jsonMapper.readValue(filmeJson, FilmeCadastroDTO.class);
 
-        // 2. Chama o serviço de atualização
         Filme filmeAtualizado = service.atualizar(id, dto, imagem);
 
-        // 3. Retorna o DTO atualizado
         return ResponseEntity.ok(mapper.map(filmeAtualizado, FilmeResponseDTO.class));
     }
 }

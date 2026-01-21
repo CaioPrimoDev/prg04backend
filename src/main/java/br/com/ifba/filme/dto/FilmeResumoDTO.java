@@ -16,4 +16,5 @@ public class FilmeResumoDTO {
     private BigDecimal preco; // Essencial para a exibição de preço da sessão
     private Boolean meiaEntrada; // Essencial para a regra de preço
     private String imagemUrl; // Para exibição na interface
+    private String duracao;
 }

@@ -4,8 +4,7 @@ import br.com.ifba.sessao.dto.SessaoCadastroDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.LocalDate;
+
 
 // Esta classe precisa saber qual é o DTO que ela está validando
 public class DataHorarioFuturoValidator implements ConstraintValidator<DataHorarioFuturo, SessaoCadastroDTO> {
@@ -13,18 +12,37 @@ public class DataHorarioFuturoValidator implements ConstraintValidator<DataHorar
     @Override
     public boolean isValid(SessaoCadastroDTO dto, ConstraintValidatorContext context) {
 
-        // Se a data ou horário for nulo, a validação de @NotNull cuida disso.
+        // 1. Se estiver nulo, deixa o @NotNull tratar
         if (dto.getData() == null || dto.getHorario() == null) {
             return true;
         }
 
-        // Combina os campos LocalDate e LocalTime em um único LocalDateTime
         LocalDateTime dataHoraAgendamento = LocalDateTime.of(dto.getData(), dto.getHorario());
-
-        // Pega o momento atual
         LocalDateTime agora = LocalDateTime.now();
 
-        // Verifica se a data e hora do agendamento é posterior (isAfter) ao momento atual
-        return dataHoraAgendamento.isAfter(agora);
+        // Se for futuro, está válido.
+        if (dataHoraAgendamento.isAfter(agora)) {
+            return true;
+        }
+
+        // Desabilita o erro genérico da classe
+        // Se não usar isso, o front não capta o erro
+        context.disableDefaultConstraintViolation();
+
+        boolean isHoje = dto.getData().isEqual(agora.toLocalDate());
+
+        if (isHoje) {
+            // CENÁRIO: É hoje, então o problema é especificamente o HORÁRIO (ex: agora 15:51, tentou 14:00)
+            context.buildConstraintViolationWithTemplate("O horário selecionado já passou.")
+                    .addPropertyNode("horario") // <--- Aponta para o campo 'horario'
+                    .addConstraintViolation();
+        } else {
+            // CENÁRIO: A data é anterior a hoje (ex: ontem)
+            context.buildConstraintViolationWithTemplate("A data deve ser no futuro.")
+                    .addPropertyNode("data") // <--- Aponta para o campo 'data'
+                    .addConstraintViolation();
+        }
+
+        return false;
     }
 }
