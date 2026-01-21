@@ -30,5 +30,8 @@ public interface SessaoRepository extends JpaRepository<Sessao, Long> {
 
     // Verifica se existe alguma sessão do filme com data HOJE ou FUTURA
     boolean existsByFilmeIdAndDataGreaterThanEqual(Long filmeId, LocalDate data);
+
+    // Método para buscar todas as sessões de uma sala específica em uma data específica
+    List<Sessao> findBySalaIdAndData(Long salaId, LocalDate data);
 }
 

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,9 @@ public class SessaoService implements SessaoIService {
     private final SessaoRepository repository;
     private final FilmeRepository filmeRepository;
     private final SalaRepository salaRepository;
+
+    // Tempo de intervalo entre sessões (limpeza/trailers)
+    private static final int TEMPO_LIMPEZA = 20;
 
     @Override
     @Transactional
@@ -50,18 +54,17 @@ public class SessaoService implements SessaoIService {
                         "Sala com o ID " + dto.getSalaId() + " não encontrada."
                 ));
 
-        Sessao sessao = Sessao.builder()
+        Sessao sessaoNova = Sessao.builder()
                 .filme(filme)
                 .sala(sala)
                 .data(dto.getData())
-                // todo: Futuramente, garantir que não há conflito de horário caso as sessões sejam na mesma sala
                 .horario(dto.getHorario())
                 .ativo(true)
                 .build();
 
-        // TODO: Adicionar validação de conflito de horário/sala antes de salvar.
+        validarConflitoHorario(sessaoNova);
 
-        return repository.save(sessao);
+        return repository.save(sessaoNova);
     }
 
     @Override
@@ -147,5 +150,40 @@ public class SessaoService implements SessaoIService {
                 filmeRepository.save(filme);
             }
         }
+    }
+
+    // Método auxiliar para organizar a lógica de tempo
+    private void validarConflitoHorario(Sessao nova) {
+        List<Sessao> sessoesExistentes = repository.findBySalaIdAndData(nova.getSala().getId(), nova.getData());
+
+        // Prepara dados da NOVA sessão (convertendo String para Long com segurança)
+        LocalTime inicioNova = nova.getHorario();
+        long duracaoNova = Long.parseLong(nova
+                .getFilme()
+                .getDuracao()
+                .replaceAll("\\D+", "")
+        );
+        LocalTime fimNova = inicioNova.plusMinutes(duracaoNova + TEMPO_LIMPEZA);
+
+        for (Sessao existente : sessoesExistentes) {
+            LocalTime inicioExistente = existente.getHorario();
+            long duracaoExistente = Long.parseLong(existente.getFilme().getDuracao().replaceAll("\\D+", ""));
+            LocalTime fimExistente = inicioExistente.plusMinutes(duracaoExistente + TEMPO_LIMPEZA);
+
+            // Lógica de Intersecção:
+            // Se o início da nova for antes do fim da existente E o fim da nova for depois do início da existente
+            boolean conflito = inicioNova.isBefore(fimExistente) && fimNova.isAfter(inicioExistente);
+
+            if (conflito) {
+                throw new BusinessException(String.format(
+                        "Conflito de horário! A sala %s já possui a sessão de '%s' das %s às %s (incluindo limpeza).",
+                        nova.getSala().getNome(),
+                        existente.getFilme().getTitulo(),
+                        inicioExistente,
+                        fimExistente
+                ));
+            }
+        }
+
     }
 }
