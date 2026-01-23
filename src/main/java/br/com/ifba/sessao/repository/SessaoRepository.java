@@ -33,5 +33,9 @@ public interface SessaoRepository extends JpaRepository<Sessao, Long> {
 
     // Método para buscar todas as sessões de uma sala específica em uma data específica
     List<Sessao> findBySalaIdAndData(Long salaId, LocalDate data);
+
+    List<Sessao> findByFilmeIdAndDataGreaterThanEqual(Long filmeId, LocalDate data);
+
+    LocalDate data(LocalDate data);
 }
 

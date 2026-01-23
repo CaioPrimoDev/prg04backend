@@ -78,11 +78,6 @@ public class SessaoService implements SessaoIService {
     }
 
     @Override
-    public List<Sessao> findByFilmeId(Long filmeId) {
-        return repository.findByFilmeId(filmeId);
-    }
-
-    @Override
     public List<Sessao> findBySalaId(Long salaId) {
         return repository.findBySalaId(salaId);
     }
@@ -132,6 +127,11 @@ public class SessaoService implements SessaoIService {
 
         // Verifica o status do filme após a exclusão
         atualizarStatusFilme(filmeId);
+    }
+
+    @Override
+    public List<Sessao> findByFilmeIdAndDataGreaterThanEqual(Long filmeId, LocalDate now) {
+        return repository.findByFilmeIdAndDataGreaterThanEqual(filmeId, now);
     }
 
     // MÉTODO AUXILIAR: Verifica se o filme ainda deve estar ativo

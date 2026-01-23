@@ -12,7 +12,6 @@ public interface SessaoIService {
     Sessao save(SessaoCadastroDTO dto);
     List<Sessao> findByData(LocalDate data);
     List<Sessao> findByFilmeIdAndData(Long filmeId, LocalDate data);
-    List<Sessao> findByFilmeId(Long filmeId);
     List<Sessao> findBySalaId(Long salaId);
     Optional<Sessao> findById(Long id);
     List<Sessao> findByAtivoTrue();
@@ -20,4 +19,6 @@ public interface SessaoIService {
     List<Sessao> findAll();
     void disable(Long id);
     void deleteById(Long id);
+
+    List<Sessao> findByFilmeIdAndDataGreaterThanEqual(Long filmeId, LocalDate now);
 }

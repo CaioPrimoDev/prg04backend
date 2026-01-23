@@ -68,16 +68,6 @@ public class SessaoController {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping(path = "/findbyfilme/{filmeId}",
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<SessaoResponseDTO>> listarPorFilme(@PathVariable("filmeId") Long filmeId) {
-
-        List<Sessao> sessoes = service.findByFilmeId(filmeId);
-
-        return ResponseEntity.ok(sessoes.stream()
-                .map(sessao -> mapper.map(sessao, SessaoResponseDTO.class))
-                .collect(Collectors.toList()));
-    }
 
     @GetMapping(path = "/findbysala/{salaId}",
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -124,6 +114,13 @@ public class SessaoController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/filme/{filmeId}")
+    public ResponseEntity<List<Sessao>> listarPorFilme(@PathVariable Long filmeId) {
+        // É importante retornar apenas sessões FUTURAS (data >= hoje)
+        List<Sessao> sessoes = service.findByFilmeIdAndDataGreaterThanEqual(filmeId, LocalDate.now());
+        return ResponseEntity.ok(sessoes);
     }
 
     @GetMapping(path = "/desativadas",
