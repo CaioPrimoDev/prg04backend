@@ -51,4 +51,5 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
     List<Ingresso> findAllByUsuarioId(Long usuarioId);
     long deleteByStatus(StatusIngresso status);
 
+    int deleteByStatusAndDataReservaBefore(StatusIngresso status, LocalDateTime dataLimite);
 }

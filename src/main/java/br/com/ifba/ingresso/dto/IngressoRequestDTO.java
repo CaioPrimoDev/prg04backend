@@ -1,5 +1,7 @@
 package br.com.ifba.ingresso.dto;
 
+import br.com.ifba.ingresso.entity.TipoIngresso;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,18 +10,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
 
-@Data
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class IngressoRequestDTO {
 
     @NotNull(message = "O ID da sessão é obrigatório")
     private Long sessaoId;
 
-    @NotNull(message = "O ID do usuário é obrigatório")
-    private Long usuarioId;
+    @NotBlank(message = "A poltrona é obrigatória")
+    private String codigoPoltrona; // Ex: "A1" (Singular)
 
-    @NotEmpty(message = "Selecione pelo menos uma poltrona")
-    private List<String> poltronas; // Ex: ["A1"] ou ["A1", "A2", "B5"]
+    @NotNull(message = "Informe se é MEIA ou INTEIRA")
+    private TipoIngresso tipo; // Enum: MEIA ou INTEIRA
 }
