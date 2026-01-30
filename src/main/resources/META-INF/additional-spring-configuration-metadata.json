@@ -19,5 +19,15 @@
       "name": "supabase.bucket",
       "type": "java.lang.String",
       "description": "Description for supabase.bucket."
+    },
+    {
+      "name": "mp.access.token",
+      "type": "java.lang.String",
+      "description": "Description for mp.access.token."
+    },
+    {
+      "name": "mp.webhook.url",
+      "type": "java.lang.String",
+      "description": "Description for mp.webhook.url."
     }
   ] }
