@@ -44,5 +44,9 @@ public class Ingresso extends PersistenceEntity {
 
     @Column(name = "preco_final")
     private BigDecimal precoPago;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoIngresso tipo;
 }
 
