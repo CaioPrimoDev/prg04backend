@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,53 +21,57 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final UsuarioRepository usuarioRepository;
 
     @Override
-    protected void doFilterInternal(
-                            HttpServletRequest request,
-                            HttpServletResponse response,
-                            FilterChain filterChain
-                                    ) throws ServletException, IOException {
+    protected void doFilterInternal
+            (
+                HttpServletRequest request,
+                HttpServletResponse response,
+                FilterChain filterChain
+            )
+            throws ServletException, IOException {
 
-        // LOG 1: Saber qual rota está sendo chamada
-        System.out.println("--- INICIO FILTER ---");
-        System.out.println("URL Chamada: " + request.getRequestURI());
+        String url = request.getRequestURI();
+
+        // Debug para vermos EXATAMENTE o que está chegando
+        System.out.println("--- FILTER CHECK ---");
+        System.out.println("URL: " + url);
+
+        // 🚨 1. A REGRA DE OURO TEM QUE SER A PRIMEIRA COISA
+        // Verificamos se a URL contém "webhook" (independente de maiúscula/minúscula ou prefixos)
+        if (url.toLowerCase().contains("webhook")) {
+            System.out.println("⏩ WEBHOOK DETECTADO! Pulando verificação de token.");
+
+            // Passa a bola para frente e...
+            filterChain.doFilter(request, response);
+
+            // 🚨 2. O RETURN É OBRIGATÓRIO!
+            // Isso impede que o Java continue descendo para a linha "recoverToken"
+            return;
+        }
+
+        // --- A partir daqui, só executa se NÃO for webhook ---
 
         try {
+            // Se o código chegou aqui, não é webhook. Então EXIGIMOS token.
             var token = this.recoverToken(request);
 
             if (token != null) {
-                System.out.println("1. Token encontrado: " + token.substring(0, Math.min(token.length(), 10)) + "...");
-
-                // Valida o token e extrai o login (email)
                 var login = tokenService.validateToken(token);
-                System.out.println("2. Login recuperado do Token: " + login);
-
-                if (login != null && !login.isEmpty()) {
-                    // Tenta achar o usuário pelo Email
+                if (login != null) {
                     var userOptional = usuarioRepository.findByPessoa_Email(login);
-
                     if (userOptional.isPresent()) {
-                        UserDetails user = userOptional.get();
-                        System.out.println("3. Usuário achado no DB: " + user.getUsername());
-
-                        System.out.println("4. Authorities (Permissões): " + user.getAuthorities());
-
+                        var user = userOptional.get();
                         var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                        System.out.println("5. Autenticação definida no Contexto com sucesso!");
-                    } else {
-                        System.out.println("ERRO: Usuário NÃO encontrado no banco para o email: " + login);
                     }
                 }
             } else {
-                System.out.println("AVISO: Requisição sem Token (normal para Login/Cadastro, erro para /save).");
+                // Só imprime isso se NÃO for webhook
+                System.out.println("⚠️ AVISO: Acesso sem token na rota: " + url);
             }
         } catch (Exception e) {
-            // Log detalhado para entender por que falhou
-            System.out.println("ERRO CRÍTICO no SecurityFilter: " + e.getMessage());
             e.printStackTrace();
         }
 
-        System.out.println("--- FIM FILTER (passando para o próximo passo) ---");
         filterChain.doFilter(request, response);
     }
 

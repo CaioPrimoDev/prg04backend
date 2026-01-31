@@ -52,4 +52,10 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
     long deleteByStatus(StatusIngresso status);
 
     int deleteByStatusAndDataReservaBefore(StatusIngresso status, LocalDateTime dataLimite);
+
+    List<Ingresso> findAllByPedidoId(Long pedidoId);
+
+    List<Ingresso> findByPedido_Usuario_Id(Long usuarioId);
+
+    List<Ingresso> findByPedido_Id(Long pedidoId);
 }

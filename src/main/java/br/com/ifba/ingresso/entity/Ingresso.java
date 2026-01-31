@@ -1,5 +1,6 @@
 package br.com.ifba.ingresso.entity;
 
+import br.com.ifba.pagamento.entity.Pedido;
 import br.com.ifba.infrastructure.entity.PersistenceEntity;
 import br.com.ifba.sessao.entity.Sessao;
 import br.com.ifba.usuario.entity.Usuario;
@@ -48,5 +49,9 @@ public class Ingresso extends PersistenceEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoIngresso tipo;
+
+    @ManyToOne
+    @JoinColumn(name = "pedido_id") // Cria uma coluna FK na tabela ingressos
+    private Pedido pedido;
 }
 

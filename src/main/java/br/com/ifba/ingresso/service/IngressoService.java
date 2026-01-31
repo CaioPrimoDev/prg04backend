@@ -1,5 +1,6 @@
 package br.com.ifba.ingresso.service;
 
+import br.com.ifba.pagamento.entity.Pedido;
 import br.com.ifba.filme.entity.Filme;
 import br.com.ifba.infrastructure.exception.BusinessException;
 import br.com.ifba.ingresso.entity.Ingresso;
@@ -126,6 +127,46 @@ public class IngressoService implements IngressoIService {
     @Override
     public List<Ingresso> findByUsuarioId(Long usuarioId) {
         return ingressoRepository.findAllByUsuarioId(usuarioId);
+    }
+
+    // --- NOVO MÉTODO 1: Vincular ingressos ao Pedido ---
+    // Esse método será chamado pelo PagamentoController na hora de criar o PIX
+    @Override
+    @Transactional
+    public void linkTicketsToOrder(List<Long> idsIngressos, Pedido pedido) {
+        List<Ingresso> ingressos = ingressoRepository.findAllById(idsIngressos);
+
+        // Validação de segurança: Verifica se todos os ingressos existem
+        if (ingressos.size() != idsIngressos.size()) {
+            throw new BusinessException("Alguns ingressos selecionados não foram encontrados ou expiraram.");
+        }
+
+        for (Ingresso ingresso : ingressos) {
+            // Verifica se o ingresso já não pertence a outro pedido (concorrência)
+            if (ingresso.getPedido() != null && !ingresso.getPedido().getId().equals(pedido.getId())) {
+                throw new BusinessException("O ingresso " + ingresso.getCodigoPoltrona() + " já está vinculado a outro processo de compra.");
+            }
+
+            ingresso.setPedido(pedido);
+            // Mantemos como PENDENTE, pois o PIX ainda não foi pago.
+            // O CronJob ainda pode deletar se o cara demorar +15min pra pagar, o que é correto.
+        }
+
+        ingressoRepository.saveAll(ingressos);
+    }
+
+    // --- NOVO MÉTODO 2: Atualizar status após Webhook ---
+    // Esse método será chamado pelo PagamentoController quando o PIX for APROVADO
+    @Override
+    @Transactional
+    public void confirmOrderTickets(Long pedidoId) {
+        List<Ingresso> ingressos = ingressoRepository.findAllByPedidoId(pedidoId);
+
+        for (Ingresso ingresso : ingressos) {
+            ingresso.setStatus(StatusIngresso.CONFIRMADO);
+        }
+
+        ingressoRepository.saveAll(ingressos);
     }
 
     /**

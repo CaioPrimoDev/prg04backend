@@ -37,7 +37,6 @@ public class SecurityConfig {
                         .requestMatchers("auth/register").permitAll()
 
                         // 2. TUDO que for GET (leitura) em filmes e sessões é público
-                        // Assim o site carrega para quem não está logado
                         .requestMatchers(HttpMethod.GET, "/filmes/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/sessoes/**").permitAll()
 
@@ -50,10 +49,14 @@ public class SecurityConfig {
                         .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/auth/register-gestor").hasAuthority("ROLE_ADMIN")
 
-                        // libera a rota de erro padrão do Spring (evita falsos Error 403)
+                        // --- PONTO 4.1: LIBERAR O WEBHOOK DO MERCADO PAGO ---
+                        .requestMatchers("/sucesso", "/pendente", "/falha").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/pagamentos/webhook").permitAll()
+
+                        // libera a rota de erro padrão
                         .requestMatchers("/error").permitAll()
 
-                        // 5. Qualquer outra coisa precisa estar logado (ex: comprar ingresso)
+                        // 5. O resto exige login
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
